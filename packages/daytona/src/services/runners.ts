@@ -217,6 +217,8 @@ export interface Runner {
   appVersion?: string;
   /** Deprecated runner class property */
   class?: string;
+  /** Whether the runner is draining. */
+  draining?: boolean;
 }
 export interface GetRunnerBySandboxIdRequest {
   sandboxId: string;
@@ -739,6 +741,7 @@ function __c10(j: number): any {
           runnerClass: S.String,
           appVersion: S.optional(S.String),
           class: S.optional(S.String),
+          draining: S.optional(S.Boolean),
         }),
       ).annotate({ identifier: "Runner" });
   }
