@@ -16,6 +16,7 @@ import {
   buildRequest,
   getAnn,
   getProps,
+  hasPropAnn,
   mapKeys,
   mapsVerbatim,
   matchTypedError,
@@ -390,6 +391,12 @@ export const validateSuccess = <E>(
 interface DecodePlan {
   readonly binary: boolean;
   readonly verbatim: boolean;
+  /**
+   * A member of a structure output that receives the whole body
+   * (`T.RawResponse()` next to header members), e.g. a bare JSON array with
+   * its next-page token in a response header.
+   */
+  readonly bodyMember: AST.PropertySignature | undefined;
   /** Members read from response headers (`T.Header`). */
   readonly headers: ReadonlyArray<ResponseHeaderMember>;
 }
@@ -402,6 +409,7 @@ const decodePlanFor = (outputAst: AST.AST): DecodePlan => {
       binary: getAnn(outputAst, binaryResponseSymbol) !== undefined,
       verbatim: mapsVerbatim(outputAst, "decode"),
       headers: responseHeaderMembers(outputAst),
+      bodyMember: getProps(outputAst).find((prop) => hasPropAnn(prop, rawResponseSymbol)),
     };
     decodePlans.set(outputAst, plan);
   }
@@ -562,12 +570,14 @@ export const makeRestProtocol = <C>(options: RestProtocolOptions<C>): Layer.Laye
     const plan = decodePlanFor(outputAst);
     let body: unknown = nonJson ? text : (json ?? {});
     if (options.transformResponse) body = options.transformResponse(body);
+    const mapped =
+      plan.bodyMember !== undefined
+        ? { [plan.bodyMember.name]: mapKeys(plan.bodyMember.type, body, "decode") }
+        : plan.verbatim
+          ? body
+          : mapKeys(outputAst, body, "decode");
     const checked = checkSuccess(context, outputAst, {
-      value: withResponseHeaders(
-        plan.headers,
-        plan.verbatim ? body : mapKeys(outputAst, body, "decode"),
-        headers,
-      ),
+      value: withResponseHeaders(plan.headers, mapped, headers),
       body: nonJson ? text : json,
       nonJson,
     });
