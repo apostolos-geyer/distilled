@@ -311,12 +311,16 @@ export interface UpdateRunnerDrainingRequest {
   id: string;
   /** Use with JWT to specify the organization ID */
   xDaytonaOrganizationID?: string;
+  /** Whether the runner is draining: no new sandboxes, existing ones move off. */
+  draining: boolean;
 }
 export interface UpdateRunnerSchedulingRequest {
   /** Runner ID */
   id: string;
   /** Use with JWT to specify the organization ID */
   xDaytonaOrganizationID?: string;
+  /** Whether the scheduler stops placing new sandboxes on the runner. */
+  unschedulable: boolean;
 }
 export type CreateRunnerError = DaytonaOpError;
 /** Create runner */
@@ -601,6 +605,7 @@ function __c3(j: number): any {
         S.Struct({
           id: S.String.pipe(T.Label()),
           xDaytonaOrganizationID: S.optional(S.String.pipe(T.Header("X-Daytona-Organization-ID"))),
+          draining: S.Boolean,
         }).pipe(T.Http({ method: "PATCH", uri: "/runners/{id}/draining", code: 200 })),
       ).annotate({ identifier: "UpdateRunnerDrainingRequest" });
   }
@@ -612,6 +617,7 @@ function __c4(j: number): any {
         S.Struct({
           id: S.String.pipe(T.Label()),
           xDaytonaOrganizationID: S.optional(S.String.pipe(T.Header("X-Daytona-Organization-ID"))),
+          unschedulable: S.Boolean,
         }).pipe(T.Http({ method: "PATCH", uri: "/runners/{id}/scheduling", code: 200 })),
       ).annotate({ identifier: "UpdateRunnerSchedulingRequest" });
   }

@@ -416,9 +416,9 @@ export interface CreateRegionResponse {
   /** ID of the created region */
   id: string;
   /** Proxy API key for the region */
-  proxyApiKey?: string | null;
+  proxyApiKey?: string | Redacted.Redacted<string> | null;
   /** SSH Gateway API key for the region */
-  sshGatewayApiKey?: string | null;
+  sshGatewayApiKey?: string | Redacted.Redacted<string> | null;
   /** Snapshot Manager username for the region */
   snapshotManagerUsername?: string | null;
   /** Snapshot Manager password for the region */
@@ -1917,8 +1917,8 @@ function __c9(j: number): any {
       return S.suspend(() =>
         S.Struct({
           id: S.String,
-          proxyApiKey: S.optional(S.NullOr(S.String)),
-          sshGatewayApiKey: S.optional(S.NullOr(S.String)),
+          proxyApiKey: S.optional(S.NullOr(S.String).pipe(T.SensitiveValue({}))),
+          sshGatewayApiKey: S.optional(S.NullOr(S.String).pipe(T.SensitiveValue({}))),
           snapshotManagerUsername: S.optional(S.NullOr(S.String)),
           snapshotManagerPassword: S.optional(S.NullOr(S.String).pipe(T.SensitiveValue({}))),
         }),
