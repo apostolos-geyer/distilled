@@ -5,6 +5,7 @@ import * as S from "@distilled.cloud/core/schema-lite";
 import * as __L from "@distilled.cloud/core/schema-lite";
 import type * as Redacted from "effect/Redacted";
 import { UnknownDaytonaError } from "../errors.ts";
+import { paginateCursor } from "../pagination.ts";
 import { DaytonaProtocol, type DaytonaOpError, type DaytonaOpContext } from "../protocol.ts";
 import * as Retry from "../retry.ts";
 import * as T from "../traits.ts";
@@ -182,20 +183,31 @@ export const getSecret: API.OperationMethod<
 
 export type ListSecretsPaginatedError = DaytonaOpError;
 /** List secrets with pagination */
-export const listSecretsPaginated: API.OperationMethod<
+export const listSecretsPaginated: API.PaginatedOperationMethod<
   ListSecretsPaginatedRequest,
   ListSecretsResponse,
   ListSecretsPaginatedError,
-  DaytonaOpContext
-> = /*@__PURE__*/ API.make(() => ({
-  input: __S(16, __c4, 0) as any as S.Schema<ListSecretsPaginatedRequest>,
-  output: __S(18, __c4, 2) as any as S.Schema<ListSecretsResponse>,
-  errors: [UnknownDaytonaError],
-  protocol: DaytonaProtocol,
-  retry: Retry.Retry,
-  telemetry: TELEMETRY,
-  span: "ListSecretsPaginated",
-}));
+  DaytonaOpContext,
+  Secret2
+> = /*@__PURE__*/ API.makePaginated(
+  () => ({
+    input: __S(16, __c4, 0) as any as S.Schema<ListSecretsPaginatedRequest>,
+    output: __S(18, __c4, 2) as any as S.Schema<ListSecretsResponse>,
+    errors: [UnknownDaytonaError],
+    protocol: DaytonaProtocol,
+    retry: Retry.Retry,
+    telemetry: TELEMETRY,
+    span: "ListSecretsPaginated",
+    pagination: {
+      mode: "cursor",
+      inputToken: "cursor",
+      outputToken: "nextCursor",
+      items: "items",
+      pageSize: "limit",
+    } as const,
+  }),
+  paginateCursor,
+) as any;
 
 export type UpdateSecretError = SecretNotFound | DaytonaOpError;
 /** Update secret */

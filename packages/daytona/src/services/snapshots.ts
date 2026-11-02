@@ -4,6 +4,7 @@ import * as C from "@distilled.cloud/core/category";
 import * as S from "@distilled.cloud/core/schema-lite";
 import * as __L from "@distilled.cloud/core/schema-lite";
 import { UnknownDaytonaError } from "../errors.ts";
+import { paginatePageNumber } from "../pagination.ts";
 import { DaytonaProtocol, type DaytonaOpError, type DaytonaOpContext } from "../protocol.ts";
 import * as Retry from "../retry.ts";
 import * as T from "../traits.ts";
@@ -266,20 +267,31 @@ export const deactivateSnapshot: API.OperationMethod<
 
 export type GetAllSnapshotsError = DaytonaOpError;
 /** List all snapshots */
-export const getAllSnapshots: API.OperationMethod<
+export const getAllSnapshots: API.PaginatedOperationMethod<
   GetAllSnapshotsRequest,
   PaginatedSnapshots,
   GetAllSnapshotsError,
-  DaytonaOpContext
-> = /*@__PURE__*/ API.make(() => ({
-  input: __S(20, __c5, 0) as any as S.Schema<GetAllSnapshotsRequest>,
-  output: __S(22, __c5, 2) as any as S.Schema<PaginatedSnapshots>,
-  errors: [UnknownDaytonaError],
-  protocol: DaytonaProtocol,
-  retry: Retry.Retry,
-  telemetry: TELEMETRY,
-  span: "GetAllSnapshots",
-}));
+  DaytonaOpContext,
+  SnapshotDto
+> = /*@__PURE__*/ API.makePaginated(
+  () => ({
+    input: __S(20, __c5, 0) as any as S.Schema<GetAllSnapshotsRequest>,
+    output: __S(22, __c5, 2) as any as S.Schema<PaginatedSnapshots>,
+    errors: [UnknownDaytonaError],
+    protocol: DaytonaProtocol,
+    retry: Retry.Retry,
+    telemetry: TELEMETRY,
+    span: "GetAllSnapshots",
+    pagination: {
+      mode: "page",
+      inputToken: "page",
+      outputToken: "page",
+      items: "items",
+      pageSize: "limit",
+    } as const,
+  }),
+  paginatePageNumber,
+) as any;
 
 export type GetSnapshotError = SnapshotNotFound | DaytonaOpError;
 /** Get snapshot by ID or name */

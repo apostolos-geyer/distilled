@@ -71,15 +71,28 @@ const spec: SdkSpec = {
     `export const ${name} = /*@__PURE__*/ S.Unknown as any as S.Schema<${name}>;\n`,
   ],
 
-  // One pagination profile: audit logs page by token (`nextToken` in and
-  // out, items under `items`). The converter stamps `smithy.api#paginated`
-  // when it recognises that shape; with a single profile the compiler
-  // applies it without a selector.
+  // Three pagination styles, picked by the trait's `mode`. Audit logs page
+  // by token (`nextToken` in and out) — the converter stamps that one.
+  // Sandboxes and secrets page by cursor (`cursor` in, `nextCursor` out)
+  // and snapshots and sandbox telemetry by page number; those traits come
+  // from patches/*/pagination.json. Items are under `items` everywhere.
   paginationProfiles: {
     token: {
       strategy: "paginateToken",
       itemsFallback: "items",
     },
+    cursor: {
+      strategy: "paginateCursor",
+      itemsFallback: "items",
+    },
+    page: {
+      strategy: "paginatePageNumber",
+      itemsFallback: "items",
+    },
+  },
+  paginationProfileFor: (trait) => {
+    const mode = (trait as { mode?: unknown }).mode;
+    return mode === "cursor" || mode === "page" ? mode : "token";
   },
 
   sourceNote:

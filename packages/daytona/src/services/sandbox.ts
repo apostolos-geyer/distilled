@@ -4,6 +4,7 @@ import * as C from "@distilled.cloud/core/category";
 import * as S from "@distilled.cloud/core/schema-lite";
 import * as __L from "@distilled.cloud/core/schema-lite";
 import { UnknownDaytonaError } from "../errors.ts";
+import { paginatePageNumber, paginateCursor } from "../pagination.ts";
 import { DaytonaProtocol, type DaytonaOpError, type DaytonaOpContext } from "../protocol.ts";
 import * as Retry from "../retry.ts";
 import * as T from "../traits.ts";
@@ -1374,20 +1375,31 @@ export const getSandboxForks: API.OperationMethod<
 
 export type GetSandboxLogsError = SandboxNotFound | DaytonaOpError;
 /** Get sandbox logs Retrieve OTEL logs for a sandbox within a time range */
-export const getSandboxLogs: API.OperationMethod<
+export const getSandboxLogs: API.PaginatedOperationMethod<
   GetSandboxLogsRequest,
   PaginatedLogs,
   GetSandboxLogsError,
-  DaytonaOpContext
-> = /*@__PURE__*/ API.make(() => ({
-  input: __S(64, __c8, 0) as any as S.Schema<GetSandboxLogsRequest>,
-  output: __S(67, __c8, 3) as any as S.Schema<PaginatedLogs>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
-  protocol: DaytonaProtocol,
-  retry: Retry.Retry,
-  telemetry: TELEMETRY,
-  span: "GetSandboxLogs",
-}));
+  DaytonaOpContext,
+  LogEntry
+> = /*@__PURE__*/ API.makePaginated(
+  () => ({
+    input: __S(64, __c8, 0) as any as S.Schema<GetSandboxLogsRequest>,
+    output: __S(67, __c8, 3) as any as S.Schema<PaginatedLogs>,
+    errors: [SandboxNotFound, UnknownDaytonaError],
+    protocol: DaytonaProtocol,
+    retry: Retry.Retry,
+    telemetry: TELEMETRY,
+    span: "GetSandboxLogs",
+    pagination: {
+      mode: "page",
+      inputToken: "page",
+      outputToken: "page",
+      items: "items",
+      pageSize: "limit",
+    } as const,
+  }),
+  paginatePageNumber,
+) as any;
 
 export type GetSandboxMetricsError = SandboxNotFound | DaytonaOpError;
 /** Get sandbox metrics Retrieve OTEL metrics for a sandbox within a time range */
@@ -1442,20 +1454,31 @@ export const getSandboxSigningKey: API.OperationMethod<
 
 export type GetSandboxTracesError = SandboxNotFound | DaytonaOpError;
 /** Get sandbox traces Retrieve OTEL traces for a sandbox within a time range */
-export const getSandboxTraces: API.OperationMethod<
+export const getSandboxTraces: API.PaginatedOperationMethod<
   GetSandboxTracesRequest,
   PaginatedTraces,
   GetSandboxTracesError,
-  DaytonaOpContext
-> = /*@__PURE__*/ API.make(() => ({
-  input: __S(136, __c17, 0) as any as S.Schema<GetSandboxTracesRequest>,
-  output: __S(139, __c17, 3) as any as S.Schema<PaginatedTraces>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
-  protocol: DaytonaProtocol,
-  retry: Retry.Retry,
-  telemetry: TELEMETRY,
-  span: "GetSandboxTraces",
-}));
+  DaytonaOpContext,
+  TraceSummary
+> = /*@__PURE__*/ API.makePaginated(
+  () => ({
+    input: __S(136, __c17, 0) as any as S.Schema<GetSandboxTracesRequest>,
+    output: __S(139, __c17, 3) as any as S.Schema<PaginatedTraces>,
+    errors: [SandboxNotFound, UnknownDaytonaError],
+    protocol: DaytonaProtocol,
+    retry: Retry.Retry,
+    telemetry: TELEMETRY,
+    span: "GetSandboxTraces",
+    pagination: {
+      mode: "page",
+      inputToken: "page",
+      outputToken: "page",
+      items: "items",
+      pageSize: "limit",
+    } as const,
+  }),
+  paginatePageNumber,
+) as any;
 
 export type GetSandboxTraceSpansError = SandboxNotFound | DaytonaOpError;
 /** Get trace spans Retrieve all spans for a specific trace */
@@ -1510,20 +1533,31 @@ export const getToolboxProxyUrl: API.OperationMethod<
 
 export type ListSandboxesError = DaytonaOpError;
 /** List sandboxes Advanced filtering and ordering. Eventually consistent. */
-export const listSandboxes: API.OperationMethod<
+export const listSandboxes: API.PaginatedOperationMethod<
   ListSandboxesRequest,
   ListSandboxesResponse,
   ListSandboxesError,
-  DaytonaOpContext
-> = /*@__PURE__*/ API.make(() => ({
-  input: __S(168, __c21, 0) as any as S.Schema<ListSandboxesRequest>,
-  output: __S(171, __c21, 3) as any as S.Schema<ListSandboxesResponse>,
-  errors: [UnknownDaytonaError],
-  protocol: DaytonaProtocol,
-  retry: Retry.Retry,
-  telemetry: TELEMETRY,
-  span: "ListSandboxes",
-}));
+  DaytonaOpContext,
+  SandboxListItem
+> = /*@__PURE__*/ API.makePaginated(
+  () => ({
+    input: __S(168, __c21, 0) as any as S.Schema<ListSandboxesRequest>,
+    output: __S(171, __c21, 3) as any as S.Schema<ListSandboxesResponse>,
+    errors: [UnknownDaytonaError],
+    protocol: DaytonaProtocol,
+    retry: Retry.Retry,
+    telemetry: TELEMETRY,
+    span: "ListSandboxes",
+    pagination: {
+      mode: "cursor",
+      inputToken: "cursor",
+      outputToken: "nextCursor",
+      items: "items",
+      pageSize: "limit",
+    } as const,
+  }),
+  paginateCursor,
+) as any;
 
 export type PauseSandboxError = SandboxNotFound | DaytonaOpError;
 /** Pause sandbox */
