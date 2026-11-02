@@ -28,6 +28,10 @@ const TELEMETRY = {
 export interface CreateRegistryRequest {
   /** Use with JWT to specify the organization ID */
   xDaytonaOrganizationID?: string;
+  /** IAM role ARN for registry mTLS; supply with mtlsSecretArn, or set both to null to clear */
+  mtlsRoleArn?: string | null;
+  /** Secrets Manager ARN for registry mTLS; supply with mtlsRoleArn, or set both to null to clear */
+  mtlsSecretArn?: string | null;
   /** Registry name */
   name: string;
   /** Registry URL */
@@ -50,6 +54,10 @@ export interface DockerRegistry2 {
   url: string;
   /** Registry username */
   username: string;
+  /** IAM role ARN for registry mTLS */
+  mtlsRoleArn: string | null;
+  /** Secrets Manager ARN for registry mTLS */
+  mtlsSecretArn: string | null;
   /** Registry project */
   project: string;
   /** Registry type */
@@ -103,6 +111,10 @@ export interface UpdateRegistryRequest {
   id: string;
   /** Use with JWT to specify the organization ID */
   xDaytonaOrganizationID?: string;
+  /** IAM role ARN for registry mTLS; supply with mtlsSecretArn, or set both to null to clear */
+  mtlsRoleArn?: string | null;
+  /** Secrets Manager ARN for registry mTLS; supply with mtlsRoleArn, or set both to null to clear */
+  mtlsSecretArn?: string | null;
   /** Registry name */
   name: string;
   /** Registry URL */
@@ -223,6 +235,8 @@ function __c0(j: number): any {
       return S.suspend(() =>
         S.Struct({
           xDaytonaOrganizationID: S.optional(S.String.pipe(T.Header("X-Daytona-Organization-ID"))),
+          mtlsRoleArn: S.optional(S.NullOr(S.String)),
+          mtlsSecretArn: S.optional(S.NullOr(S.String)),
           name: S.String,
           url: S.String,
           username: S.String,
@@ -241,6 +255,8 @@ function __c1(j: number): any {
           name: S.String,
           url: S.String,
           username: S.String,
+          mtlsRoleArn: S.NullOr(S.String),
+          mtlsSecretArn: S.NullOr(S.String),
           project: S.String,
           registryType: S.String,
           createdAt: S.String,
@@ -318,6 +334,8 @@ function __c6(j: number): any {
         S.Struct({
           id: S.String.pipe(T.Label()),
           xDaytonaOrganizationID: S.optional(S.String.pipe(T.Header("X-Daytona-Organization-ID"))),
+          mtlsRoleArn: S.optional(S.NullOr(S.String)),
+          mtlsSecretArn: S.optional(S.NullOr(S.String)),
           name: S.String,
           url: S.String,
           username: S.String,

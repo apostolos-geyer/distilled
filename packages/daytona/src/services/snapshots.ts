@@ -44,6 +44,7 @@ export type SnapshotDtoEntrypointList = Array<string>;
 export type GpuType =
   | "H100"
   | "H200"
+  | "B200"
   | "B300"
   | "RTX-PRO-6000"
   | "RTX-4090"

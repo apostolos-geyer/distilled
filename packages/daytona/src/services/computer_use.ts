@@ -24,10 +24,14 @@ const TELEMETRY = {
   propagate: "w3c",
 } as const;
 
+export type ClickRequestModifiersList = Array<string>;
 export interface ClickRequest {
   /** left, right, middle */
   button?: string;
+  /** Clicks is a pointer so an omitted value is distinguishable from an explicit 0, which must be rejected rather than silently defaulted. */
+  clicks?: number;
   double?: boolean;
+  modifiers?: ClickRequestModifiersList;
   x?: number;
   y?: number;
 }
@@ -45,10 +49,12 @@ export interface DownloadRecordingRequest {
   id: string;
 }
 export type DownloadRecordingResponse = unknown;
+export type DragRequestModifiersList = Array<string>;
 export interface DragRequest {
   button?: string;
   endX?: number;
   endY?: number;
+  modifiers?: DragRequestModifiersList;
   startX?: number;
   startY?: number;
 }
@@ -187,10 +193,32 @@ export interface InvokeAccessibilityNodeRequest {
   id: string;
 }
 export type InvokeAccessibilityNodeResponse = unknown;
+export interface KeyDownRequest {
+  /** e.g., "ctrl", "shift", "a" */
+  key: string;
+}
+export type KeyDownResponse = unknown;
+export interface KeyUpRequest {
+  /** e.g., "ctrl", "shift", "a" */
+  key: string;
+}
+export type KeyUpResponse = unknown;
 export interface ListRecordingsRequest {}
 export type ListRecordingsResponseRecordingsList = Array<Recording>;
 export interface ListRecordingsResponse {
   recordings: ListRecordingsResponseRecordingsList;
+}
+export interface MouseDownRequest {
+  /** left, right, middle */
+  button?: string;
+  x?: number;
+  y?: number;
+}
+export interface MouseUpRequest {
+  /** left, right, middle */
+  button?: string;
+  x?: number;
+  y?: number;
 }
 export interface MoveMouseRequest {
   x?: number;
@@ -217,10 +245,12 @@ export interface ProcessRestartResponse {
   message?: string;
   processName?: string;
 }
+export type ScrollRequestModifiersList = Array<string>;
 export interface ScrollRequest {
   amount?: number;
-  /** up, down */
+  /** up, down, left, right */
   direction?: string;
+  modifiers?: ScrollRequestModifiersList;
   x?: number;
   y?: number;
 }
@@ -340,8 +370,8 @@ export const deleteRecording: API.OperationMethod<
   DeleteRecordingError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(8, __c2, 0) as any as S.Schema<DeleteRecordingRequest>,
-  output: __S(9, __c2, 1) as any as S.Schema<DeleteRecordingResponse>,
+  input: __S(12, __c3, 0) as any as S.Schema<DeleteRecordingRequest>,
+  output: __S(13, __c3, 1) as any as S.Schema<DeleteRecordingResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -357,8 +387,8 @@ export const downloadRecording: API.OperationMethod<
   DownloadRecordingError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(56, __c14, 0) as any as S.Schema<DownloadRecordingRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<DownloadRecordingResponse>,
+  input: __S(60, __c15, 0) as any as S.Schema<DownloadRecordingRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<DownloadRecordingResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -391,8 +421,8 @@ export const findAccessibilityNodes: API.OperationMethod<
   FindAccessibilityNodesError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(128, __c32, 0) as any as S.Schema<FindAccessibilityNodesRequest>,
-  output: __S(130, __c32, 2) as any as S.Schema<AccessibilityNodesResponse>,
+  input: __S(148, __c37, 0) as any as S.Schema<FindAccessibilityNodesRequest>,
+  output: __S(150, __c37, 2) as any as S.Schema<AccessibilityNodesResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -408,8 +438,8 @@ export const focusAccessibilityNode: API.OperationMethod<
   FocusAccessibilityNodeError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(140, __c35, 0) as any as S.Schema<FocusAccessibilityNodeRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<FocusAccessibilityNodeResponse>,
+  input: __S(156, __c39, 0) as any as S.Schema<FocusAccessibilityNodeRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<FocusAccessibilityNodeResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -425,8 +455,8 @@ export const getAccessibilityTree: API.OperationMethod<
   GetAccessibilityTreeError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(144, __c36, 0) as any as S.Schema<GetAccessibilityTreeRequest>,
-  output: __S(145, __c36, 1) as any as S.Schema<AccessibilityTreeResponse>,
+  input: __S(160, __c40, 0) as any as S.Schema<GetAccessibilityTreeRequest>,
+  output: __S(161, __c40, 1) as any as S.Schema<AccessibilityTreeResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -442,8 +472,8 @@ export const getComputerUseStatus: API.OperationMethod<
   GetComputerUseStatusError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(148, __c37, 0) as any as S.Schema<GetComputerUseStatusRequest>,
-  output: __S(152, __c38, 0) as any as S.Schema<ComputerUseStatusResponse>,
+  input: __S(164, __c41, 0) as any as S.Schema<GetComputerUseStatusRequest>,
+  output: __S(168, __c42, 0) as any as S.Schema<ComputerUseStatusResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -459,8 +489,8 @@ export const getComputerUseSystemStatus: API.OperationMethod<
   GetComputerUseSystemStatusError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(156, __c39, 0) as any as S.Schema<GetComputerUseSystemStatusRequest>,
-  output: __S(152, __c38, 0) as any as S.Schema<ComputerUseStatusResponse>,
+  input: __S(172, __c43, 0) as any as S.Schema<GetComputerUseSystemStatusRequest>,
+  output: __S(168, __c42, 0) as any as S.Schema<ComputerUseStatusResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -476,8 +506,8 @@ export const getDisplayInfo: API.OperationMethod<
   GetDisplayInfoError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(160, __c40, 0) as any as S.Schema<GetDisplayInfoRequest>,
-  output: __S(163, __c40, 3) as any as S.Schema<DisplayInfoResponse>,
+  input: __S(176, __c44, 0) as any as S.Schema<GetDisplayInfoRequest>,
+  output: __S(179, __c44, 3) as any as S.Schema<DisplayInfoResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -493,7 +523,7 @@ export const getMousePosition: API.OperationMethod<
   GetMousePositionError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(12, __c3, 0) as any as S.Schema<GetMousePositionRequest>,
+  input: __S(16, __c4, 0) as any as S.Schema<GetMousePositionRequest>,
   output: __S(4, __c1, 0) as any as S.Schema<MousePositionResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
@@ -510,8 +540,8 @@ export const getProcessErrors: API.OperationMethod<
   GetProcessErrorsError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(16, __c4, 0) as any as S.Schema<GetProcessErrorsRequest>,
-  output: __S(17, __c4, 1) as any as S.Schema<ProcessErrorsResponse>,
+  input: __S(20, __c5, 0) as any as S.Schema<GetProcessErrorsRequest>,
+  output: __S(21, __c5, 1) as any as S.Schema<ProcessErrorsResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -527,8 +557,8 @@ export const getProcessLogs: API.OperationMethod<
   GetProcessLogsError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(20, __c5, 0) as any as S.Schema<GetProcessLogsRequest>,
-  output: __S(21, __c5, 1) as any as S.Schema<ProcessLogsResponse>,
+  input: __S(24, __c6, 0) as any as S.Schema<GetProcessLogsRequest>,
+  output: __S(25, __c6, 1) as any as S.Schema<ProcessLogsResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -544,8 +574,8 @@ export const getProcessStatus: API.OperationMethod<
   GetProcessStatusError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(24, __c6, 0) as any as S.Schema<GetProcessStatusRequest>,
-  output: __S(25, __c6, 1) as any as S.Schema<ProcessStatusResponse>,
+  input: __S(28, __c7, 0) as any as S.Schema<GetProcessStatusRequest>,
+  output: __S(29, __c7, 1) as any as S.Schema<ProcessStatusResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -561,8 +591,8 @@ export const getRecording: API.OperationMethod<
   GetRecordingError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(28, __c7, 0) as any as S.Schema<GetRecordingRequest>,
-  output: __S(32, __c8, 0) as any as S.Schema<Recording>,
+  input: __S(32, __c8, 0) as any as S.Schema<GetRecordingRequest>,
+  output: __S(36, __c9, 0) as any as S.Schema<Recording>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -578,8 +608,8 @@ export const getWindows: API.OperationMethod<
   GetWindowsError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(36, __c9, 0) as any as S.Schema<GetWindowsRequest>,
-  output: __S(39, __c9, 3) as any as S.Schema<WindowsResponse>,
+  input: __S(40, __c10, 0) as any as S.Schema<GetWindowsRequest>,
+  output: __S(43, __c10, 3) as any as S.Schema<WindowsResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -595,14 +625,44 @@ export const invokeAccessibilityNode: API.OperationMethod<
   InvokeAccessibilityNodeError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(40, __c10, 0) as any as S.Schema<InvokeAccessibilityNodeRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<InvokeAccessibilityNodeResponse>,
+  input: __S(44, __c11, 0) as any as S.Schema<InvokeAccessibilityNodeRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<InvokeAccessibilityNodeResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
   span: "InvokeAccessibilityNode",
 }));
+
+export type KeyDownError = DaytonaOpError;
+/** Press and hold a keyboard key Press a key or modifier and hold it down until a matching key up call */
+export const keyDown: API.OperationMethod<
+  KeyDownRequest,
+  KeyDownResponse,
+  KeyDownError,
+  DaytonaOpContext
+> = /*@__PURE__*/ API.make(() => ({
+  input: __S(48, __c12, 0) as any as S.Schema<KeyDownRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<KeyDownResponse>,
+  errors: [UnknownDaytonaError],
+  protocol: DaytonaProtocol,
+  retry: Retry.Retry,
+  telemetry: TELEMETRY,
+  span: "KeyDown",
+}));
+
+export type KeyUpError = DaytonaOpError;
+/** Release a held keyboard key Release a key or modifier that is currently held down */
+export const keyUp: API.OperationMethod<KeyUpRequest, KeyUpResponse, KeyUpError, DaytonaOpContext> =
+  /*@__PURE__*/ API.make(() => ({
+    input: __S(52, __c13, 0) as any as S.Schema<KeyUpRequest>,
+    output: __S(64, __c16, 0) as any as S.Schema<KeyUpResponse>,
+    errors: [UnknownDaytonaError],
+    protocol: DaytonaProtocol,
+    retry: Retry.Retry,
+    telemetry: TELEMETRY,
+    span: "KeyUp",
+  }));
 
 export type ListRecordingsError = DaytonaOpError;
 /** List all recordings Get a list of all recordings (active and completed) */
@@ -612,13 +672,47 @@ export const listRecordings: API.OperationMethod<
   ListRecordingsError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(44, __c11, 0) as any as S.Schema<ListRecordingsRequest>,
-  output: __S(46, __c11, 2) as any as S.Schema<ListRecordingsResponse>,
+  input: __S(56, __c14, 0) as any as S.Schema<ListRecordingsRequest>,
+  output: __S(58, __c14, 2) as any as S.Schema<ListRecordingsResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
   span: "ListRecordings",
+}));
+
+export type MouseDownError = DaytonaOpError;
+/** Press mouse button Press and hold a mouse button, optionally moving to the specified coordinates first */
+export const mouseDown: API.OperationMethod<
+  MouseDownRequest,
+  MousePositionResponse,
+  MouseDownError,
+  DaytonaOpContext
+> = /*@__PURE__*/ API.make(() => ({
+  input: __S(68, __c17, 0) as any as S.Schema<MouseDownRequest>,
+  output: __S(4, __c1, 0) as any as S.Schema<MousePositionResponse>,
+  errors: [UnknownDaytonaError],
+  protocol: DaytonaProtocol,
+  retry: Retry.Retry,
+  telemetry: TELEMETRY,
+  span: "MouseDown",
+}));
+
+export type MouseUpError = DaytonaOpError;
+/** Release mouse button Release a held mouse button, optionally moving to the specified coordinates first */
+export const mouseUp: API.OperationMethod<
+  MouseUpRequest,
+  MousePositionResponse,
+  MouseUpError,
+  DaytonaOpContext
+> = /*@__PURE__*/ API.make(() => ({
+  input: __S(72, __c18, 0) as any as S.Schema<MouseUpRequest>,
+  output: __S(4, __c1, 0) as any as S.Schema<MousePositionResponse>,
+  errors: [UnknownDaytonaError],
+  protocol: DaytonaProtocol,
+  retry: Retry.Retry,
+  telemetry: TELEMETRY,
+  span: "MouseUp",
 }));
 
 export type MoveMouseError = DaytonaOpError;
@@ -629,7 +723,7 @@ export const moveMouse: API.OperationMethod<
   MoveMouseError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(48, __c12, 0) as any as S.Schema<MoveMouseRequest>,
+  input: __S(76, __c19, 0) as any as S.Schema<MoveMouseRequest>,
   output: __S(4, __c1, 0) as any as S.Schema<MousePositionResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
@@ -646,8 +740,8 @@ export const pressHotkey: API.OperationMethod<
   PressHotkeyError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(52, __c13, 0) as any as S.Schema<PressHotkeyRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<PressHotkeyResponse>,
+  input: __S(80, __c20, 0) as any as S.Schema<PressHotkeyRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<PressHotkeyResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -663,8 +757,8 @@ export const pressKey: API.OperationMethod<
   PressKeyError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(64, __c16, 0) as any as S.Schema<PressKeyRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<PressKeyResponse>,
+  input: __S(84, __c21, 0) as any as S.Schema<PressKeyRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<PressKeyResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -680,8 +774,8 @@ export const restartProcess: API.OperationMethod<
   RestartProcessError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(68, __c17, 0) as any as S.Schema<RestartProcessRequest>,
-  output: __S(69, __c17, 1) as any as S.Schema<ProcessRestartResponse>,
+  input: __S(88, __c22, 0) as any as S.Schema<RestartProcessRequest>,
+  output: __S(89, __c22, 1) as any as S.Schema<ProcessRestartResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -697,8 +791,8 @@ export const scroll: API.OperationMethod<
   ScrollError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(72, __c18, 0) as any as S.Schema<ScrollRequest>,
-  output: __S(73, __c18, 1) as any as S.Schema<ScrollResponse>,
+  input: __S(92, __c23, 0) as any as S.Schema<ScrollRequest>,
+  output: __S(93, __c23, 1) as any as S.Schema<ScrollResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -714,8 +808,8 @@ export const setAccessibilityNodeValue: API.OperationMethod<
   SetAccessibilityNodeValueError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(76, __c19, 0) as any as S.Schema<SetAccessibilityNodeValueRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<SetAccessibilityNodeValueResponse>,
+  input: __S(96, __c24, 0) as any as S.Schema<SetAccessibilityNodeValueRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<SetAccessibilityNodeValueResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -731,8 +825,8 @@ export const startComputerUse: API.OperationMethod<
   StartComputerUseError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(80, __c20, 0) as any as S.Schema<StartComputerUseRequest>,
-  output: __S(86, __c21, 2) as any as S.Schema<ComputerUseStartResponse>,
+  input: __S(100, __c25, 0) as any as S.Schema<StartComputerUseRequest>,
+  output: __S(106, __c26, 2) as any as S.Schema<ComputerUseStartResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -748,8 +842,8 @@ export const startRecording: API.OperationMethod<
   StartRecordingError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(88, __c22, 0) as any as S.Schema<StartRecordingRequest>,
-  output: __S(32, __c8, 0) as any as S.Schema<Recording>,
+  input: __S(108, __c27, 0) as any as S.Schema<StartRecordingRequest>,
+  output: __S(36, __c9, 0) as any as S.Schema<Recording>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -765,8 +859,8 @@ export const stopComputerUse: API.OperationMethod<
   StopComputerUseError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(92, __c23, 0) as any as S.Schema<StopComputerUseRequest>,
-  output: __S(86, __c21, 2) as any as S.Schema<ComputerUseStopResponse>,
+  input: __S(116, __c29, 0) as any as S.Schema<StopComputerUseRequest>,
+  output: __S(106, __c26, 2) as any as S.Schema<ComputerUseStopResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -782,8 +876,8 @@ export const stopRecording: API.OperationMethod<
   StopRecordingError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(96, __c24, 0) as any as S.Schema<StopRecordingRequest>,
-  output: __S(32, __c8, 0) as any as S.Schema<Recording>,
+  input: __S(120, __c30, 0) as any as S.Schema<StopRecordingRequest>,
+  output: __S(36, __c9, 0) as any as S.Schema<Recording>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -799,8 +893,8 @@ export const takeCompressedRegionScreenshot: API.OperationMethod<
   TakeCompressedRegionScreenshotError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(100, __c25, 0) as any as S.Schema<TakeCompressedRegionScreenshotRequest>,
-  output: __S(104, __c26, 0) as any as S.Schema<ScreenshotResponse>,
+  input: __S(124, __c31, 0) as any as S.Schema<TakeCompressedRegionScreenshotRequest>,
+  output: __S(128, __c32, 0) as any as S.Schema<ScreenshotResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -816,8 +910,8 @@ export const takeCompressedScreenshot: API.OperationMethod<
   TakeCompressedScreenshotError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(108, __c27, 0) as any as S.Schema<TakeCompressedScreenshotRequest>,
-  output: __S(104, __c26, 0) as any as S.Schema<ScreenshotResponse>,
+  input: __S(132, __c33, 0) as any as S.Schema<TakeCompressedScreenshotRequest>,
+  output: __S(128, __c32, 0) as any as S.Schema<ScreenshotResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -833,8 +927,8 @@ export const takeRegionScreenshot: API.OperationMethod<
   TakeRegionScreenshotError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(116, __c29, 0) as any as S.Schema<TakeRegionScreenshotRequest>,
-  output: __S(104, __c26, 0) as any as S.Schema<ScreenshotResponse>,
+  input: __S(136, __c34, 0) as any as S.Schema<TakeRegionScreenshotRequest>,
+  output: __S(128, __c32, 0) as any as S.Schema<ScreenshotResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -850,8 +944,8 @@ export const takeScreenshot: API.OperationMethod<
   TakeScreenshotError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(120, __c30, 0) as any as S.Schema<TakeScreenshotRequest>,
-  output: __S(104, __c26, 0) as any as S.Schema<ScreenshotResponse>,
+  input: __S(140, __c35, 0) as any as S.Schema<TakeScreenshotRequest>,
+  output: __S(128, __c32, 0) as any as S.Schema<ScreenshotResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -867,8 +961,8 @@ export const typeText: API.OperationMethod<
   TypeTextError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
-  input: __S(124, __c31, 0) as any as S.Schema<TypeTextRequest>,
-  output: __S(60, __c15, 0) as any as S.Schema<TypeTextResponse>,
+  input: __S(144, __c36, 0) as any as S.Schema<TypeTextRequest>,
+  output: __S(64, __c16, 0) as any as S.Schema<TypeTextResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -883,7 +977,9 @@ function __c0(j: number): any {
       return S.suspend(() =>
         S.Struct({
           button: S.optional(S.String),
+          clicks: S.optional(S.Number),
           double: S.optional(S.Boolean),
+          modifiers: S.optional(__S(8, __c2, 0)),
           x: S.optional(S.Number),
           y: S.optional(S.Number),
         }).pipe(T.Http({ method: "POST", uri: "/computeruse/mouse/click", code: 200 })),
@@ -904,6 +1000,12 @@ function __c1(j: number): any {
 function __c2(j: number): any {
   switch (j) {
     case 0:
+      return S.Array(S.String);
+  }
+}
+function __c3(j: number): any {
+  switch (j) {
+    case 0:
       return S.suspend(() =>
         S.Struct({
           id: S.String.pipe(T.Label()),
@@ -913,7 +1015,7 @@ function __c2(j: number): any {
       return S.suspend(() => S.Struct({})).annotate({ identifier: "DeleteRecordingResponse" });
   }
 }
-function __c3(j: number): any {
+function __c4(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -921,7 +1023,7 @@ function __c3(j: number): any {
       ).annotate({ identifier: "GetMousePositionRequest" });
   }
 }
-function __c4(j: number): any {
+function __c5(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -940,7 +1042,7 @@ function __c4(j: number): any {
       ).annotate({ identifier: "ProcessErrorsResponse" });
   }
 }
-function __c5(j: number): any {
+function __c6(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -959,7 +1061,7 @@ function __c5(j: number): any {
       ).annotate({ identifier: "ProcessLogsResponse" });
   }
 }
-function __c6(j: number): any {
+function __c7(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -978,7 +1080,7 @@ function __c6(j: number): any {
       ).annotate({ identifier: "ProcessStatusResponse" });
   }
 }
-function __c7(j: number): any {
+function __c8(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -988,7 +1090,7 @@ function __c7(j: number): any {
       ).annotate({ identifier: "GetRecordingRequest" });
   }
 }
-function __c8(j: number): any {
+function __c9(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1005,7 +1107,7 @@ function __c8(j: number): any {
       ).annotate({ identifier: "Recording" });
   }
 }
-function __c9(j: number): any {
+function __c10(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1026,16 +1128,16 @@ function __c9(j: number): any {
         }),
       ).annotate({ identifier: "WindowInfo" });
     case 2:
-      return S.Array(__S(37, __c9, 1));
+      return S.Array(__S(41, __c10, 1));
     case 3:
       return S.suspend(() =>
         S.Struct({
-          windows: S.optional(__S(38, __c9, 2)),
+          windows: S.optional(__S(42, __c10, 2)),
         }),
       ).annotate({ identifier: "WindowsResponse" });
   }
 }
-function __c10(j: number): any {
+function __c11(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1046,23 +1148,85 @@ function __c10(j: number): any {
       ).annotate({ identifier: "InvokeAccessibilityNodeRequest" });
   }
 }
-function __c11(j: number): any {
+function __c12(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() =>
+        S.Struct({
+          key: S.String,
+        }).pipe(T.Http({ method: "POST", uri: "/computeruse/keyboard/down", code: 200 })),
+      ).annotate({ identifier: "KeyDownRequest" });
+  }
+}
+function __c13(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() =>
+        S.Struct({
+          key: S.String,
+        }).pipe(T.Http({ method: "POST", uri: "/computeruse/keyboard/up", code: 200 })),
+      ).annotate({ identifier: "KeyUpRequest" });
+  }
+}
+function __c14(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
         S.Struct({}).pipe(T.Http({ method: "GET", uri: "/computeruse/recordings", code: 200 })),
       ).annotate({ identifier: "ListRecordingsRequest" });
     case 1:
-      return S.Array(__S(32, __c8, 0));
+      return S.Array(__S(36, __c9, 0));
     case 2:
       return S.suspend(() =>
         S.Struct({
-          recordings: __S(45, __c11, 1),
+          recordings: __S(57, __c14, 1),
         }),
       ).annotate({ identifier: "ListRecordingsResponse" });
   }
 }
-function __c12(j: number): any {
+function __c15(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() =>
+        S.Struct({
+          id: S.String.pipe(T.Label()),
+        }).pipe(T.Http({ method: "GET", uri: "/computeruse/recordings/{id}/download", code: 200 })),
+      ).annotate({ identifier: "DownloadRecordingRequest" });
+  }
+}
+function __c16(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() => S.Unknown.pipe(T.RawResponseRoot())).annotate({
+        identifier: "DownloadRecordingResponse",
+      });
+  }
+}
+function __c17(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() =>
+        S.Struct({
+          button: S.optional(S.String),
+          x: S.optional(S.Number),
+          y: S.optional(S.Number),
+        }).pipe(T.Http({ method: "POST", uri: "/computeruse/mouse/down", code: 200 })),
+      ).annotate({ identifier: "MouseDownRequest" });
+  }
+}
+function __c18(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() =>
+        S.Struct({
+          button: S.optional(S.String),
+          x: S.optional(S.Number),
+          y: S.optional(S.Number),
+        }).pipe(T.Http({ method: "POST", uri: "/computeruse/mouse/up", code: 200 })),
+      ).annotate({ identifier: "MouseUpRequest" });
+  }
+}
+function __c19(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1073,7 +1237,7 @@ function __c12(j: number): any {
       ).annotate({ identifier: "MoveMouseRequest" });
   }
 }
-function __c13(j: number): any {
+function __c20(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1083,36 +1247,18 @@ function __c13(j: number): any {
       ).annotate({ identifier: "PressHotkeyRequest" });
   }
 }
-function __c14(j: number): any {
-  switch (j) {
-    case 0:
-      return S.suspend(() =>
-        S.Struct({
-          id: S.String.pipe(T.Label()),
-        }).pipe(T.Http({ method: "GET", uri: "/computeruse/recordings/{id}/download", code: 200 })),
-      ).annotate({ identifier: "DownloadRecordingRequest" });
-  }
-}
-function __c15(j: number): any {
-  switch (j) {
-    case 0:
-      return S.suspend(() => S.Unknown.pipe(T.RawResponseRoot())).annotate({
-        identifier: "DownloadRecordingResponse",
-      });
-  }
-}
-function __c16(j: number): any {
+function __c21(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
         S.Struct({
           key: S.optional(S.String),
-          modifiers: S.optional(__S(136, __c34, 0)),
+          modifiers: S.optional(__S(8, __c2, 0)),
         }).pipe(T.Http({ method: "POST", uri: "/computeruse/keyboard/key", code: 200 })),
       ).annotate({ identifier: "PressKeyRequest" });
   }
 }
-function __c17(j: number): any {
+function __c22(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1131,13 +1277,14 @@ function __c17(j: number): any {
       ).annotate({ identifier: "ProcessRestartResponse" });
   }
 }
-function __c18(j: number): any {
+function __c23(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
         S.Struct({
           amount: S.optional(S.Number),
           direction: S.optional(S.String),
+          modifiers: S.optional(__S(8, __c2, 0)),
           x: S.optional(S.Number),
           y: S.optional(S.Number),
         }).pipe(T.Http({ method: "POST", uri: "/computeruse/mouse/scroll", code: 200 })),
@@ -1150,7 +1297,7 @@ function __c18(j: number): any {
       ).annotate({ identifier: "ScrollResponse" });
   }
 }
-function __c19(j: number): any {
+function __c24(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1161,7 +1308,7 @@ function __c19(j: number): any {
       ).annotate({ identifier: "SetAccessibilityNodeValueRequest" });
   }
 }
-function __c20(j: number): any {
+function __c25(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1169,7 +1316,7 @@ function __c20(j: number): any {
       ).annotate({ identifier: "StartComputerUseRequest" });
   }
 }
-function __c21(j: number): any {
+function __c26(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1181,17 +1328,17 @@ function __c21(j: number): any {
         }),
       ).annotate({ identifier: "ProcessStatus" });
     case 1:
-      return S.Record(S.String, __S(84, __c21, 0));
+      return S.Record(S.String, __S(104, __c26, 0));
     case 2:
       return S.suspend(() =>
         S.Struct({
           message: S.optional(S.String),
-          status: S.optional(__S(85, __c21, 1)),
+          status: S.optional(__S(105, __c26, 1)),
         }),
       ).annotate({ identifier: "ComputerUseStartResponse" });
   }
 }
-function __c22(j: number): any {
+function __c27(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1201,7 +1348,22 @@ function __c22(j: number): any {
       ).annotate({ identifier: "StartRecordingRequest" });
   }
 }
-function __c23(j: number): any {
+function __c28(j: number): any {
+  switch (j) {
+    case 0:
+      return S.suspend(() =>
+        S.Struct({
+          button: S.optional(S.String),
+          endX: S.optional(S.Number),
+          endY: S.optional(S.Number),
+          modifiers: S.optional(__S(8, __c2, 0)),
+          startX: S.optional(S.Number),
+          startY: S.optional(S.Number),
+        }).pipe(T.Http({ method: "POST", uri: "/computeruse/mouse/drag", code: 200 })),
+      ).annotate({ identifier: "DragRequest" });
+  }
+}
+function __c29(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1209,7 +1371,7 @@ function __c23(j: number): any {
       ).annotate({ identifier: "StopComputerUseRequest" });
   }
 }
-function __c24(j: number): any {
+function __c30(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1219,7 +1381,7 @@ function __c24(j: number): any {
       ).annotate({ identifier: "StopRecordingRequest" });
   }
 }
-function __c25(j: number): any {
+function __c31(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1238,7 +1400,7 @@ function __c25(j: number): any {
       ).annotate({ identifier: "TakeCompressedRegionScreenshotRequest" });
   }
 }
-function __c26(j: number): any {
+function __c32(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1250,7 +1412,7 @@ function __c26(j: number): any {
       ).annotate({ identifier: "ScreenshotResponse" });
   }
 }
-function __c27(j: number): any {
+function __c33(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1263,21 +1425,7 @@ function __c27(j: number): any {
       ).annotate({ identifier: "TakeCompressedScreenshotRequest" });
   }
 }
-function __c28(j: number): any {
-  switch (j) {
-    case 0:
-      return S.suspend(() =>
-        S.Struct({
-          button: S.optional(S.String),
-          endX: S.optional(S.Number),
-          endY: S.optional(S.Number),
-          startX: S.optional(S.Number),
-          startY: S.optional(S.Number),
-        }).pipe(T.Http({ method: "POST", uri: "/computeruse/mouse/drag", code: 200 })),
-      ).annotate({ identifier: "DragRequest" });
-  }
-}
-function __c29(j: number): any {
+function __c34(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1291,7 +1439,7 @@ function __c29(j: number): any {
       ).annotate({ identifier: "TakeRegionScreenshotRequest" });
   }
 }
-function __c30(j: number): any {
+function __c35(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1301,7 +1449,7 @@ function __c30(j: number): any {
       ).annotate({ identifier: "TakeScreenshotRequest" });
   }
 }
-function __c31(j: number): any {
+function __c36(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1312,7 +1460,7 @@ function __c31(j: number): any {
       ).annotate({ identifier: "TypeTextRequest" });
   }
 }
-function __c32(j: number): any {
+function __c37(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1323,21 +1471,21 @@ function __c32(j: number): any {
           pid: S.optional(S.Number),
           role: S.optional(S.String),
           scope: S.optional(S.String),
-          states: S.optional(__S(136, __c34, 0)),
+          states: S.optional(__S(8, __c2, 0)),
         }).pipe(T.Http({ method: "POST", uri: "/computeruse/a11y/find", code: 200 })),
       ).annotate({ identifier: "FindAccessibilityNodesRequest" });
     case 1:
-      return S.Array(__S(134, __c33, 2));
+      return S.Array(__S(154, __c38, 2));
     case 2:
       return S.suspend(() =>
         S.Struct({
-          matches: S.optional(__S(129, __c32, 1)),
+          matches: S.optional(__S(149, __c37, 1)),
           truncated: S.optional(S.Boolean),
         }),
       ).annotate({ identifier: "AccessibilityNodesResponse" });
   }
 }
-function __c33(j: number): any {
+function __c38(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1349,29 +1497,23 @@ function __c33(j: number): any {
         }),
       ).annotate({ identifier: "AccessibilityBounds" });
     case 1:
-      return S.Array(/*@__PURE__*/ S.suspend(() => __S(134, __c33, 2)));
+      return S.Array(/*@__PURE__*/ S.suspend(() => __S(154, __c38, 2)));
     case 2:
       return S.suspend(() =>
         S.Struct({
-          actions: S.optional(__S(136, __c34, 0)),
-          bounds: S.optional(__S(132, __c33, 0)),
-          children: S.optional(__S(133, __c33, 1)),
+          actions: S.optional(__S(8, __c2, 0)),
+          bounds: S.optional(__S(152, __c38, 0)),
+          children: S.optional(__S(153, __c38, 1)),
           description: S.optional(S.String),
           id: S.optional(S.String),
           name: S.optional(S.String),
           role: S.optional(S.String),
-          states: S.optional(__S(136, __c34, 0)),
+          states: S.optional(__S(8, __c2, 0)),
         }),
       ).annotate({ identifier: "ComputeruseAccessibilityNode" });
   }
 }
-function __c34(j: number): any {
-  switch (j) {
-    case 0:
-      return S.Array(S.String);
-  }
-}
-function __c35(j: number): any {
+function __c39(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1381,7 +1523,7 @@ function __c35(j: number): any {
       ).annotate({ identifier: "FocusAccessibilityNodeRequest" });
   }
 }
-function __c36(j: number): any {
+function __c40(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1394,13 +1536,13 @@ function __c36(j: number): any {
     case 1:
       return S.suspend(() =>
         S.Struct({
-          root: S.optional(__S(134, __c33, 2)),
+          root: S.optional(__S(154, __c38, 2)),
           truncated: S.optional(S.Boolean),
         }),
       ).annotate({ identifier: "AccessibilityTreeResponse" });
   }
 }
-function __c37(j: number): any {
+function __c41(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1408,7 +1550,7 @@ function __c37(j: number): any {
       ).annotate({ identifier: "GetComputerUseStatusRequest" });
   }
 }
-function __c38(j: number): any {
+function __c42(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1418,7 +1560,7 @@ function __c38(j: number): any {
       ).annotate({ identifier: "ComputerUseStatusResponse" });
   }
 }
-function __c39(j: number): any {
+function __c43(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1426,7 +1568,7 @@ function __c39(j: number): any {
       ).annotate({ identifier: "GetComputerUseSystemStatusRequest" });
   }
 }
-function __c40(j: number): any {
+function __c44(j: number): any {
   switch (j) {
     case 0:
       return S.suspend(() =>
@@ -1444,11 +1586,11 @@ function __c40(j: number): any {
         }),
       ).annotate({ identifier: "DisplayInfo" });
     case 2:
-      return S.Array(__S(161, __c40, 1));
+      return S.Array(__S(177, __c44, 1));
     case 3:
       return S.suspend(() =>
         S.Struct({
-          displays: S.optional(__S(162, __c40, 2)),
+          displays: S.optional(__S(178, __c44, 2)),
         }),
       ).annotate({ identifier: "DisplayInfoResponse" });
   }

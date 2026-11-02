@@ -36,6 +36,7 @@ export type SandboxLabelsMap = { [key: string]: string | undefined };
 export type GpuType =
   | "H100"
   | "H200"
+  | "B200"
   | "B300"
   | "RTX-PRO-6000"
   | "RTX-4090"
@@ -153,6 +154,8 @@ export interface Sandbox2 {
   desiredState?: SandboxDesiredState;
   /** The error reason of the sandbox */
   errorReason?: string;
+  /** Outcome of the runner's most recent network policy change: why the network settings fields (what was requested) are not what the runner enforces. Absent when the latest change was applied; a new request leaves it as it is until its own outcome is known. */
+  networkPolicyError?: string;
   /** Whether the sandbox error is recoverable. */
   recoverable?: boolean;
   /** Id of the warm pool this sandbox waits in; set only while it is an unclaimed member. */
@@ -287,7 +290,7 @@ export interface CreateSandboxSnapshotRequest {
 export interface CreateSshAccessRequest {
   /** ID or name of the sandbox */
   sandboxIdOrName: string;
-  /** Expiration time in minutes (default: 60) */
+  /** Expiration time in minutes (default: 60, maximum: 1440) */
   expiresInMinutes?: number;
   /** Use with JWT to specify the organization ID */
   xDaytonaOrganizationID?: string;
@@ -1908,6 +1911,7 @@ function __c2(j: number): any {
           state: S.optional(S.String),
           desiredState: S.optional(S.String),
           errorReason: S.optional(S.String),
+          networkPolicyError: S.optional(S.String),
           recoverable: S.optional(S.Boolean),
           warmPoolId: S.optional(S.String),
           backupState: S.optional(S.String),

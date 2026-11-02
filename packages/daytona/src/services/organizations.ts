@@ -329,6 +329,12 @@ export interface CreateRegionRequest {
   snapshotManagerUrl?: string | null;
   /** OTel collector endpoint for sandboxes created in this region. When set, sandbox OTel data is sent to this endpoint instead of the Daytona-hosted collector and will not be available in the Daytona analytics API or dashboard. */
   otelEndpoint?: string | null;
+  /** S3 bucket in your AWS account that declarative-build context is uploaded to for this region. Requires buildContextBucketRegion and buildContextRoleArn. */
+  buildContextBucket?: string | null;
+  /** AWS region of buildContextBucket (standard aws partition only) */
+  buildContextBucketRegion?: string | null;
+  /** IAM role Daytona assumes (with your organization ID as ExternalId) to issue upload credentials for buildContextBucket */
+  buildContextRoleArn?: string | null;
 }
 export interface CreateRegionResponse {
   /** ID of the created region */
@@ -404,6 +410,7 @@ export interface GetGpuCapacityRequest {
 export type GpuType =
   | "H100"
   | "H200"
+  | "B200"
   | "B300"
   | "RTX-PRO-6000"
   | "RTX-4090"
@@ -508,6 +515,12 @@ export interface Region {
   snapshotManagerUrl?: string | null;
   /** OTel collector endpoint for sandboxes created in this region. When set, sandbox OTel data is sent to this endpoint instead of the Daytona-hosted collector and will not be available in the Daytona analytics API or dashboard. */
   otelEndpoint?: string | null;
+  /** S3 bucket in your AWS account that declarative-build context is uploaded to for this region. Requires buildContextBucketRegion and buildContextRoleArn. */
+  buildContextBucket?: string | null;
+  /** AWS region of buildContextBucket (standard aws partition only) */
+  buildContextBucketRegion?: string | null;
+  /** IAM role Daytona assumes (with your organization ID as ExternalId) to issue upload credentials for buildContextBucket */
+  buildContextRoleArn?: string | null;
 }
 export interface GetSandboxIdentityBySandboxAuthTokenRequest {
   /** Sandbox Auth Token */
@@ -811,6 +824,12 @@ export interface UpdateRegionRequest {
   snapshotManagerUrl?: string | null;
   /** OTel collector endpoint for sandboxes created in this region. When set, sandbox OTel data is sent to this endpoint instead of the Daytona-hosted collector and will not be available in the Daytona analytics API or dashboard. */
   otelEndpoint?: string | null;
+  /** S3 bucket in your AWS account that declarative-build context is uploaded to for this region. Requires buildContextBucketRegion and buildContextRoleArn. */
+  buildContextBucket?: string | null;
+  /** AWS region of buildContextBucket (standard aws partition only) */
+  buildContextBucketRegion?: string | null;
+  /** IAM role Daytona assumes (with your organization ID as ExternalId) to issue upload credentials for buildContextBucket */
+  buildContextRoleArn?: string | null;
 }
 export interface UpdateRegionResponse {}
 export type AcceptOrganizationInvitationError = DaytonaOpError;
@@ -2044,6 +2063,9 @@ function __c24(j: number): any {
           sshGatewayUrl: S.optional(S.NullOr(S.String)),
           snapshotManagerUrl: S.optional(S.NullOr(S.String)),
           otelEndpoint: S.optional(S.NullOr(S.String)),
+          buildContextBucket: S.optional(S.NullOr(S.String)),
+          buildContextBucketRegion: S.optional(S.NullOr(S.String)),
+          buildContextRoleArn: S.optional(S.NullOr(S.String)),
         }),
       ).annotate({ identifier: "Region" });
   }
@@ -2618,6 +2640,9 @@ function __c55(j: number): any {
           sshGatewayUrl: S.optional(S.NullOr(S.String)),
           snapshotManagerUrl: S.optional(S.NullOr(S.String)),
           otelEndpoint: S.optional(S.NullOr(S.String)),
+          buildContextBucket: S.optional(S.NullOr(S.String)),
+          buildContextBucketRegion: S.optional(S.NullOr(S.String)),
+          buildContextRoleArn: S.optional(S.NullOr(S.String)),
         }).pipe(T.Http({ method: "PATCH", uri: "/regions/{id}", code: 200 })),
       ).annotate({ identifier: "UpdateRegionRequest" });
   }
@@ -2648,6 +2673,9 @@ function __c57(j: number): any {
           sshGatewayUrl: S.optional(S.NullOr(S.String)),
           snapshotManagerUrl: S.optional(S.NullOr(S.String)),
           otelEndpoint: S.optional(S.NullOr(S.String)),
+          buildContextBucket: S.optional(S.NullOr(S.String)),
+          buildContextBucketRegion: S.optional(S.NullOr(S.String)),
+          buildContextRoleArn: S.optional(S.NullOr(S.String)),
         }).pipe(T.Http({ method: "POST", uri: "/regions", code: 200 })),
       ).annotate({ identifier: "CreateRegionRequest" });
     case 1:

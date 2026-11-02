@@ -138,7 +138,16 @@ export interface UploadedFile {
   type: string;
 }
 export interface UploadFilesRequest {}
-export interface UploadFilesResponse {}
+export type UploadFilesResponseErrorsList = Array<string>;
+export interface FsFileResult {
+  bytes?: number;
+  path?: string;
+}
+export type UploadFilesResponseFilesList = Array<FsFileResult>;
+export interface UploadFilesResponse {
+  errors?: UploadFilesResponseErrorsList;
+  files?: UploadFilesResponseFilesList;
+}
 export type CreateFolderError = DaytonaOpError;
 /** Create a folder Create a folder with the specified path and optional permissions */
 export const createFolder: API.OperationMethod<
@@ -352,7 +361,7 @@ export const uploadFiles: API.OperationMethod<
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(20, __c5, 0) as any as S.Schema<UploadFilesRequest>,
-  output: __S(4, __c1, 0) as any as S.Schema<UploadFilesResponse>,
+  output: __S(23, __c5, 3) as any as S.Schema<UploadFilesResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -426,6 +435,22 @@ function __c5(j: number): any {
       return S.suspend(() =>
         S.Struct({}).pipe(T.Http({ method: "POST", uri: "/files/bulk-upload", code: 200 })),
       ).annotate({ identifier: "UploadFilesRequest" });
+    case 1:
+      return S.suspend(() =>
+        S.Struct({
+          bytes: S.optional(S.Number),
+          path: S.optional(S.String),
+        }),
+      ).annotate({ identifier: "FsFileResult" });
+    case 2:
+      return S.Array(__S(21, __c5, 1));
+    case 3:
+      return S.suspend(() =>
+        S.Struct({
+          errors: S.optional(__S(32, __c8, 0)),
+          files: S.optional(__S(22, __c5, 2)),
+        }),
+      ).annotate({ identifier: "UploadFilesResponse" });
   }
 }
 function __c6(j: number): any {
