@@ -44,6 +44,15 @@ export class ApiKeyNotFound
     [{ status: 404 }],
   ) {}
 
+/** Managing API keys with an API key (the manage:api_keys permission) is not enabled for this organization; Daytona enables it on request. Sign in as a user instead (HTTP 403). */
+export class ManagedApiKeysNotEnabled
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<ManagedApiKeysNotEnabled>()("ManagedApiKeysNotEnabled", {
+      message: S.String,
+    }).pipe(C.withAuthError),
+    [{ status: 403, message: { includes: "Managing API keys with an API key is not enabled" } }],
+  ) {}
+
 export type CreateApiKeyRequestPermissionsItem =
   | "write:registries"
   | "delete:registries"
@@ -186,7 +195,7 @@ export interface ListApiKeysRequest {
 }
 export type ListApiKeysResponseBodyList = Array<ApiKeyList>;
 export type ListApiKeysResponse = ListApiKeysResponseBodyList;
-export type CreateApiKeyError = ApiKeyAlreadyExists | DaytonaOpError;
+export type CreateApiKeyError = ApiKeyAlreadyExists | ManagedApiKeysNotEnabled | DaytonaOpError;
 /** Create API key */
 export const createApiKey: API.OperationMethod<
   CreateApiKeyRequest,
@@ -196,14 +205,14 @@ export const createApiKey: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(0, __c0, 0) as any as S.Schema<CreateApiKeyRequest>,
   output: __S(1, __c0, 1) as any as S.Schema<ApiKeyResponse>,
-  errors: [ApiKeyAlreadyExists, UnknownDaytonaError],
+  errors: [ApiKeyAlreadyExists, ManagedApiKeysNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
   span: "CreateApiKey",
 }));
 
-export type DeleteApiKeyError = ApiKeyNotFound | DaytonaOpError;
+export type DeleteApiKeyError = ApiKeyNotFound | ManagedApiKeysNotEnabled | DaytonaOpError;
 /** Delete API key */
 export const deleteApiKey: API.OperationMethod<
   DeleteApiKeyRequest,
@@ -213,7 +222,7 @@ export const deleteApiKey: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(8, __c2, 0) as any as S.Schema<DeleteApiKeyRequest>,
   output: __S(12, __c3, 0) as any as S.Schema<DeleteApiKeyResponse>,
-  errors: [ApiKeyNotFound, UnknownDaytonaError],
+  errors: [ApiKeyNotFound, ManagedApiKeysNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -237,7 +246,7 @@ export const deleteApiKeyForUser: API.OperationMethod<
   span: "DeleteApiKeyForUser",
 }));
 
-export type GetApiKeyError = ApiKeyNotFound | DaytonaOpError;
+export type GetApiKeyError = ApiKeyNotFound | ManagedApiKeysNotEnabled | DaytonaOpError;
 /** Get API key */
 export const getApiKey: API.OperationMethod<
   GetApiKeyRequest,
@@ -247,7 +256,7 @@ export const getApiKey: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(20, __c5, 0) as any as S.Schema<GetApiKeyRequest>,
   output: __S(24, __c6, 0) as any as S.Schema<ApiKeyList>,
-  errors: [ApiKeyNotFound, UnknownDaytonaError],
+  errors: [ApiKeyNotFound, ManagedApiKeysNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -271,7 +280,7 @@ export const getCurrentApiKey: API.OperationMethod<
   span: "GetCurrentApiKey",
 }));
 
-export type ListApiKeysError = DaytonaOpError;
+export type ListApiKeysError = ManagedApiKeysNotEnabled | DaytonaOpError;
 /** List API keys */
 export const listApiKeys: API.OperationMethod<
   ListApiKeysRequest,
@@ -281,7 +290,7 @@ export const listApiKeys: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(32, __c8, 0) as any as S.Schema<ListApiKeysRequest>,
   output: __S(34, __c8, 2) as any as S.Schema<ListApiKeysResponse>,
-  errors: [UnknownDaytonaError],
+  errors: [ManagedApiKeysNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
