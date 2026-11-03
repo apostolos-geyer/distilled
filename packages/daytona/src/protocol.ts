@@ -18,6 +18,11 @@ import { makeRestProtocol } from "@distilled.cloud/core/protocol-rest";
  *
  * A toolbox call without a configured sandbox (when the toolbox URL still
  * contains `{sandboxId}`) fails with `ConfigError`.
+ *
+ * SUCCESS bodies drop explicit `null` properties before decoding
+ * ({@link stripNulls}): Daytona's TypeORM entities serialize every unset
+ * column as `null` (`domainAllowList`, `entrypoint`, ...), which the spec
+ * declares as optional.
  */
 import * as Effect from "effect/Effect";
 import type * as HttpClient from "effect/http/HttpClient";
@@ -69,6 +74,20 @@ const baseUrlFor = (creds: Config, uri: string): string => {
   return creds.toolboxBaseUrl.replaceAll("{sandboxId}", creds.sandboxId);
 };
 
+/** Recursively drop `null` properties so unset optional fields decode as absent. */
+export const stripNulls = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(stripNulls);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (v === null) continue;
+      out[k] = stripNulls(v);
+    }
+    return out;
+  }
+  return value;
+};
+
 export const DaytonaProtocol: Layer.Layer<API.Protocol> = /*@__PURE__*/ makeRestProtocol<Config>({
   // Resolved on the CALLING fiber per request (the layer is memoized per
   // process); the Credentials service holds an effect, so a key rotated
@@ -84,6 +103,7 @@ export const DaytonaProtocol: Layer.Layer<API.Protocol> = /*@__PURE__*/ makeRest
     }
     return headers;
   },
+  transformResponse: stripNulls,
   unknownError: ({ code, message, body }) =>
     new UnknownDaytonaError({
       code: typeof code === "string" ? code : code !== undefined ? String(code) : undefined,
