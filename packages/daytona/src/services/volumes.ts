@@ -43,6 +43,15 @@ export class VolumeNotFound
     [{ status: 404 }],
   ) {}
 
+/** The volume is being created or deleted, so it cannot be deleted now (HTTP 400). */
+export class VolumeNotReady
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<VolumeNotReady>()("VolumeNotReady", {
+      message: S.String,
+    }).pipe(C.withBadRequestError),
+    [{ status: 400, message: { includes: "must be in 'ready' or 'error' state" } }],
+  ) {}
+
 export interface CreateVolumeRequest {
   /** Use with JWT to specify the organization ID */
   xDaytonaOrganizationID?: string;
@@ -119,7 +128,7 @@ export const createVolume: API.OperationMethod<
   span: "CreateVolume",
 }));
 
-export type DeleteVolumeError = VolumeNotFound | DaytonaOpError;
+export type DeleteVolumeError = VolumeNotFound | VolumeNotReady | DaytonaOpError;
 /** Delete volume */
 export const deleteVolume: API.OperationMethod<
   DeleteVolumeRequest,
@@ -129,7 +138,7 @@ export const deleteVolume: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(8, __c2, 0) as any as S.Schema<DeleteVolumeRequest>,
   output: __S(9, __c2, 1) as any as S.Schema<DeleteVolumeResponse>,
-  errors: [VolumeNotFound, UnknownDaytonaError],
+  errors: [VolumeNotFound, VolumeNotReady, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,

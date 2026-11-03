@@ -131,6 +131,15 @@ export class RegionNotFound
     [{ status: 404 }],
   ) {}
 
+/** SSO is not enabled for this organization; Daytona enables it on request (HTTP 403). */
+export class SsoNotEnabled
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<SsoNotEnabled>()("SsoNotEnabled", {
+      message: S.String,
+    }).pipe(C.withAuthError),
+    [{ status: 403, message: { includes: "SSO is not enabled" } }],
+  ) {}
+
 export interface AcceptOrganizationInvitationRequest {
   /** Invitation ID */
   invitationId: string;
@@ -989,7 +998,10 @@ export const createOrganization: API.OperationMethod<
   span: "CreateOrganization",
 }));
 
-export type CreateOrganizationIdentityProviderError = OrganizationNotFound | DaytonaOpError;
+export type CreateOrganizationIdentityProviderError =
+  | OrganizationNotFound
+  | SsoNotEnabled
+  | DaytonaOpError;
 /** Create organization identity provider */
 export const createOrganizationIdentityProvider: API.OperationMethod<
   CreateOrganizationIdentityProviderRequest,
@@ -999,7 +1011,7 @@ export const createOrganizationIdentityProvider: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(45, __c11, 1) as any as S.Schema<CreateOrganizationIdentityProviderRequest>,
   output: __S(53, __c13, 1) as any as S.Schema<IdentityProvider>,
-  errors: [OrganizationNotFound, UnknownDaytonaError],
+  errors: [OrganizationNotFound, SsoNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -1606,7 +1618,10 @@ export const setOrganizationDefaultRegion: API.OperationMethod<
   span: "SetOrganizationDefaultRegion",
 }));
 
-export type TestOrganizationIdentityProviderConnectionError = OrganizationNotFound | DaytonaOpError;
+export type TestOrganizationIdentityProviderConnectionError =
+  | OrganizationNotFound
+  | SsoNotEnabled
+  | DaytonaOpError;
 /** Test OIDC identity provider connection */
 export const testOrganizationIdentityProviderConnection: API.OperationMethod<
   TestOrganizationIdentityProviderConnectionRequest,
@@ -1616,7 +1631,7 @@ export const testOrganizationIdentityProviderConnection: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(208, __c52, 0) as any as S.Schema<TestOrganizationIdentityProviderConnectionRequest>,
   output: __S(209, __c52, 1) as any as S.Schema<TestIdentityProviderConnectionResponse>,
-  errors: [OrganizationNotFound, UnknownDaytonaError],
+  errors: [OrganizationNotFound, SsoNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -1677,7 +1692,10 @@ export const updateOrganizationDefaultQueueTimeout: API.OperationMethod<
   span: "UpdateOrganizationDefaultQueueTimeout",
 }));
 
-export type UpdateOrganizationIdentityProviderError = IdentityProviderNotFound | DaytonaOpError;
+export type UpdateOrganizationIdentityProviderError =
+  | IdentityProviderNotFound
+  | SsoNotEnabled
+  | DaytonaOpError;
 /** Update organization identity provider */
 export const updateOrganizationIdentityProvider: API.OperationMethod<
   UpdateOrganizationIdentityProviderRequest,
@@ -1687,7 +1705,7 @@ export const updateOrganizationIdentityProvider: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(225, __c56, 1) as any as S.Schema<UpdateOrganizationIdentityProviderRequest>,
   output: __S(53, __c13, 1) as any as S.Schema<IdentityProvider>,
-  errors: [IdentityProviderNotFound, UnknownDaytonaError],
+  errors: [IdentityProviderNotFound, SsoNotEnabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
