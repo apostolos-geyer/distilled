@@ -26,6 +26,15 @@ const TELEMETRY = {
   propagate: "w3c",
 } as const;
 
+/** The sandbox's class doesn't support auto-pause; only linux-vm and windows do (HTTP 422). */
+export class AutoPauseNotSupported
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<AutoPauseNotSupported>()("AutoPauseNotSupported", {
+      message: S.String,
+    }).pipe(C.withBadRequestError),
+    [{ status: 422, message: { includes: "Auto-pause is not supported" } }],
+  ) {}
+
 /** The sandbox's class or snapshot can't be forked (HTTP 422). */
 export class ForkNotSupported
   extends /*@__PURE__*/ T.applyErrorMatchers(
@@ -80,6 +89,15 @@ export class SandboxAlreadyExists
     [{ status: 409 }],
   ) {}
 
+/** The sandbox booted from a snapshot, not a build, so it has no build logs (HTTP 404). */
+export class SandboxHasNoBuildInfo
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<SandboxHasNoBuildInfo>()("SandboxHasNoBuildInfo", {
+      message: S.String,
+    }).pipe(C.withBadRequestError),
+    [{ status: 404, message: { includes: "has no build info" } }],
+  ) {}
+
 /** The sandbox does not exist (HTTP 404). */
 export class SandboxNotFound
   extends /*@__PURE__*/ T.applyErrorMatchers(
@@ -114,6 +132,15 @@ export class SandboxResourcesFromSnapshot
         message: { includes: "Cannot specify GPU type when creating sandbox from snapshot" },
       },
     ],
+  ) {}
+
+/** The deployment serves sandbox telemetry through its Analytics API instead (the telemetry module); these endpoints answer 403. */
+export class TelemetryEndpointsDisabled
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<TelemetryEndpointsDisabled>()("TelemetryEndpointsDisabled", {
+      message: S.String,
+    }).pipe(C.withAuthError),
+    [{ status: 403, message: { includes: "Telemetry endpoints are disabled" } }],
   ) {}
 
 /** Windows sandboxes need a higher tier, or access granted by Daytona support (HTTP 403). */
@@ -1333,7 +1360,7 @@ export const forkSandbox: API.OperationMethod<
   span: "ForkSandbox",
 }));
 
-export type GetBuildLogsUrlError = SandboxNotFound | DaytonaOpError;
+export type GetBuildLogsUrlError = SandboxNotFound | SandboxHasNoBuildInfo | DaytonaOpError;
 /** Get build logs URL */
 export const getBuildLogsUrl: API.OperationMethod<
   GetBuildLogsUrlRequest,
@@ -1343,7 +1370,7 @@ export const getBuildLogsUrl: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(104, __c13, 0) as any as S.Schema<GetBuildLogsUrlRequest>,
   output: __S(112, __c14, 0) as any as S.Schema<Url>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
+  errors: [SandboxNotFound, SandboxHasNoBuildInfo, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -1469,7 +1496,7 @@ export const getSandboxForks: API.OperationMethod<
   span: "GetSandboxForks",
 }));
 
-export type GetSandboxLogsError = SandboxNotFound | DaytonaOpError;
+export type GetSandboxLogsError = SandboxNotFound | TelemetryEndpointsDisabled | DaytonaOpError;
 /** Get sandbox logs Retrieve OTEL logs for a sandbox within a time range */
 export const getSandboxLogs: API.PaginatedOperationMethod<
   GetSandboxLogsRequest,
@@ -1481,7 +1508,7 @@ export const getSandboxLogs: API.PaginatedOperationMethod<
   () => ({
     input: __S(184, __c23, 0) as any as S.Schema<GetSandboxLogsRequest>,
     output: __S(187, __c23, 3) as any as S.Schema<PaginatedLogs>,
-    errors: [SandboxNotFound, UnknownDaytonaError],
+    errors: [SandboxNotFound, TelemetryEndpointsDisabled, UnknownDaytonaError],
     protocol: DaytonaProtocol,
     retry: Retry.Retry,
     telemetry: TELEMETRY,
@@ -1497,7 +1524,7 @@ export const getSandboxLogs: API.PaginatedOperationMethod<
   paginatePageNumber,
 ) as any;
 
-export type GetSandboxMetricsError = SandboxNotFound | DaytonaOpError;
+export type GetSandboxMetricsError = SandboxNotFound | TelemetryEndpointsDisabled | DaytonaOpError;
 /** Get sandbox metrics Retrieve OTEL metrics for a sandbox within a time range */
 export const getSandboxMetrics: API.OperationMethod<
   GetSandboxMetricsRequest,
@@ -1507,7 +1534,7 @@ export const getSandboxMetrics: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(192, __c24, 0) as any as S.Schema<GetSandboxMetricsRequest>,
   output: __S(197, __c24, 5) as any as S.Schema<MetricsResponse>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
+  errors: [SandboxNotFound, TelemetryEndpointsDisabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -1548,7 +1575,7 @@ export const getSandboxSigningKey: API.OperationMethod<
   span: "GetSandboxSigningKey",
 }));
 
-export type GetSandboxTracesError = SandboxNotFound | DaytonaOpError;
+export type GetSandboxTracesError = SandboxNotFound | TelemetryEndpointsDisabled | DaytonaOpError;
 /** Get sandbox traces Retrieve OTEL traces for a sandbox within a time range */
 export const getSandboxTraces: API.PaginatedOperationMethod<
   GetSandboxTracesRequest,
@@ -1560,7 +1587,7 @@ export const getSandboxTraces: API.PaginatedOperationMethod<
   () => ({
     input: __S(224, __c28, 0) as any as S.Schema<GetSandboxTracesRequest>,
     output: __S(227, __c28, 3) as any as S.Schema<PaginatedTraces>,
-    errors: [SandboxNotFound, UnknownDaytonaError],
+    errors: [SandboxNotFound, TelemetryEndpointsDisabled, UnknownDaytonaError],
     protocol: DaytonaProtocol,
     retry: Retry.Retry,
     telemetry: TELEMETRY,
@@ -1576,7 +1603,10 @@ export const getSandboxTraces: API.PaginatedOperationMethod<
   paginatePageNumber,
 ) as any;
 
-export type GetSandboxTraceSpansError = SandboxNotFound | DaytonaOpError;
+export type GetSandboxTraceSpansError =
+  | SandboxNotFound
+  | TelemetryEndpointsDisabled
+  | DaytonaOpError;
 /** Get trace spans Retrieve all spans for a specific trace */
 export const getSandboxTraceSpans: API.OperationMethod<
   GetSandboxTraceSpansRequest,
@@ -1586,7 +1616,7 @@ export const getSandboxTraceSpans: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(232, __c29, 0) as any as S.Schema<GetSandboxTraceSpansRequest>,
   output: __S(235, __c29, 3) as any as S.Schema<GetSandboxTraceSpansResponse>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
+  errors: [SandboxNotFound, TelemetryEndpointsDisabled, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
@@ -1808,7 +1838,7 @@ export const setAutoDeleteInterval: API.OperationMethod<
   span: "SetAutoDeleteInterval",
 }));
 
-export type SetAutoPauseIntervalError = SandboxNotFound | DaytonaOpError;
+export type SetAutoPauseIntervalError = SandboxNotFound | AutoPauseNotSupported | DaytonaOpError;
 /** Set sandbox auto-pause interval */
 export const setAutoPauseInterval: API.OperationMethod<
   SetAutoPauseIntervalRequest,
@@ -1818,7 +1848,7 @@ export const setAutoPauseInterval: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(336, __c42, 0) as any as S.Schema<SetAutoPauseIntervalRequest>,
   output: __S(27, __c3, 3) as any as S.Schema<Sandbox2>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
+  errors: [SandboxNotFound, AutoPauseNotSupported, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,

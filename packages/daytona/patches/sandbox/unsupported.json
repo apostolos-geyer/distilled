@@ -1,5 +1,5 @@
 {
-  "description": "Type the per-class refusals of fork and pause. Observed live 2026-11-04 on Daytona Cloud v0.229.2: on a container-class sandbox from the default snapshot, POST /sandbox/{id}/fork answers 422 \"Forking is not supported for this sandbox\" and POST /sandbox/{id}/pause answers 422 \"Pausing is not supported for this sandbox\".",
+  "description": "Type the per-class refusals of fork and pause. Observed live 2026-11-04 on Daytona Cloud v0.229.2: on a container-class sandbox from the default snapshot, POST /sandbox/{id}/fork answers 422 \"Forking is not supported for this sandbox\" and POST /sandbox/{id}/pause answers 422 \"Pausing is not supported for this sandbox\". POST /sandbox/{id}/autopause/{interval} on a container answers 422 \"Auto-pause is not supported for sandbox class 'container'. Supported classes: linux-vm, windows\". GET /sandbox/{id}/build-logs-url for a sandbox booted from a snapshot answers 404 \"Sandbox {id} has no build info\", which otherwise matches SandboxNotFound.",
   "patches": [
     {
       "op": "add",
@@ -63,6 +63,70 @@
       "path": "/shapes/com.daytona.sandbox#PauseSandbox/errors/-",
       "value": {
         "target": "com.daytona.sandbox#PauseNotSupported"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#AutoPauseNotSupported",
+      "value": {
+        "type": "structure",
+        "members": {
+          "message": {
+            "target": "smithy.api#String"
+          }
+        },
+        "traits": {
+          "smithy.api#error": "client",
+          "smithy.api#httpError": 422,
+          "smithy.api#documentation": "The sandbox's class doesn't support auto-pause; only linux-vm and windows do (HTTP 422).",
+          "com.distilled.openapi#errorMatchers": [
+            {
+              "status": 422,
+              "message": {
+                "includes": "Auto-pause is not supported"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#SetAutoPauseInterval/errors/-",
+      "value": {
+        "target": "com.daytona.sandbox#AutoPauseNotSupported"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#SandboxHasNoBuildInfo",
+      "value": {
+        "type": "structure",
+        "members": {
+          "message": {
+            "target": "smithy.api#String"
+          }
+        },
+        "traits": {
+          "smithy.api#error": "client",
+          "smithy.api#httpError": 404,
+          "smithy.api#documentation": "The sandbox booted from a snapshot, not a build, so it has no build logs (HTTP 404).",
+          "com.distilled.openapi#errorMatchers": [
+            {
+              "status": 404,
+              "message": {
+                "includes": "has no build info"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#GetBuildLogsUrl/errors/-",
+      "value": {
+        "target": "com.daytona.sandbox#SandboxHasNoBuildInfo"
       }
     }
   ]
