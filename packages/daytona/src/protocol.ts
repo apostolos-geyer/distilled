@@ -57,21 +57,51 @@ const isAnalytics = (uri: string): boolean =>
 
 const isToolbox = (uri: string): boolean => TOOLBOX_ROOT_SET.has(firstSegment(uri));
 
-const baseUrlFor = (creds: Config, uri: string): string => {
-  if (isAnalytics(uri)) return creds.analyticsBaseUrl;
-  if (!isToolbox(uri)) return creds.apiBaseUrl;
-
+/**
+ * The toolbox root for the configured sandbox, or the `ConfigError` a
+ * toolbox call fails with when no sandbox is configured.
+ */
+export const toolboxBaseUrl = (creds: Config): string | ConfigError => {
   if (!creds.toolboxBaseUrl.includes("{sandboxId}")) {
     return creds.toolboxBaseUrl;
   }
   if (creds.sandboxId === undefined || creds.sandboxId === "") {
-    throw new ConfigError({
+    return new ConfigError({
       message:
-        `Daytona operation on ${uri} is toolbox-scoped (${creds.toolboxBaseUrl}) \u2014 ` +
-        `configure a sandbox (DAYTONA_SANDBOX_ID or credentials({ sandboxId })) to call it`,
+        `Daytona toolbox calls are sandbox-scoped (${creds.toolboxBaseUrl}) \u2014 ` +
+        `configure a sandbox (DAYTONA_SANDBOX_ID or credentials({ sandboxId })) to call them`,
     });
   }
   return creds.toolboxBaseUrl.replaceAll("{sandboxId}", creds.sandboxId);
+};
+
+const baseUrlFor = (creds: Config, uri: string): string => {
+  if (isAnalytics(uri)) return creds.analyticsBaseUrl;
+  if (!isToolbox(uri)) return creds.apiBaseUrl;
+  const base = toolboxBaseUrl(creds);
+  if (typeof base !== "string") throw base;
+  return base;
+};
+
+/**
+ * The SDK version Daytona sees. The daemon shapes some replies by it:
+ * from 0.167.0 session logs come back as JSON with separate `stdout` and
+ * `stderr`, and followed logs carry stdout/stderr markers. This is the
+ * Daytona Cloud version the SDK was generated and tested against.
+ */
+export const SDK_VERSION = "0.229.2";
+
+/** The headers every Daytona request carries: auth, organization, SDK version. */
+export const requestHeaders = (creds: Config): Record<string, string> => {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${Redacted.value(creds.apiKey)}`,
+    "X-Daytona-SDK-Version": SDK_VERSION,
+    "X-Daytona-Source": "distilled",
+  };
+  if (creds.organizationId !== undefined && creds.organizationId !== "") {
+    headers["X-Daytona-Organization-ID"] = creds.organizationId;
+  }
+  return headers;
 };
 
 /** Recursively drop `null` properties so unset optional fields decode as absent. */
@@ -94,15 +124,7 @@ export const DaytonaProtocol: Layer.Layer<API.Protocol> = /*@__PURE__*/ makeRest
   // between calls is picked up without rebuilding the layer.
   credentials: /*@__PURE__*/ Effect.flatMap(Credentials, (resolve) => resolve),
   baseUrl: (creds, target) => baseUrlFor(creds, target.uri),
-  headers: (creds) => {
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${Redacted.value(creds.apiKey)}`,
-    };
-    if (creds.organizationId !== undefined && creds.organizationId !== "") {
-      headers["X-Daytona-Organization-ID"] = creds.organizationId;
-    }
-    return headers;
-  },
+  headers: requestHeaders,
   transformResponse: stripNulls,
   unknownError: ({ code, message, body }) =>
     new UnknownDaytonaError({

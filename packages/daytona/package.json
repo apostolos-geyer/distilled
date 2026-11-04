@@ -52,6 +52,12 @@
       "worker": "./src/retry.ts",
       "default": "./lib/retry.js"
     },
+    "./Toolbox": {
+      "types": "./lib/toolbox.d.ts",
+      "bun": "./src/toolbox.ts",
+      "worker": "./src/toolbox.ts",
+      "default": "./lib/toolbox.js"
+    },
     "./Traits": {
       "types": "./lib/traits.d.ts",
       "bun": "./src/traits.ts",
