@@ -89,6 +89,15 @@ export class QueueTimeoutNotEnabled
     [{ status: 403, message: { includes: "Queue timeout is not enabled" } }],
   ) {}
 
+/** Region quota by sandbox is served to Daytona's runners only; an organization API key is refused (HTTP 403). */
+export class RegionQuotaRunnerOnly
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<RegionQuotaRunnerOnly>()("RegionQuotaRunnerOnly", {
+      message: S.String,
+    }).pipe(C.withAuthError),
+    [{ status: 403, message: { includes: "Invalid authentication context" } }],
+  ) {}
+
 /** A sandbox with that name already exists (HTTP 409). */
 export class SandboxAlreadyExists
   extends /*@__PURE__*/ T.applyErrorMatchers(
@@ -1422,7 +1431,10 @@ export const getPortPreviewUrl: API.OperationMethod<
   span: "GetPortPreviewUrl",
 }));
 
-export type GetRegionQuotaBySandboxIdError = SandboxNotFound | DaytonaOpError;
+export type GetRegionQuotaBySandboxIdError =
+  | SandboxNotFound
+  | RegionQuotaRunnerOnly
+  | DaytonaOpError;
 /** Get region quota by sandbox ID */
 export const getRegionQuotaBySandboxId: API.OperationMethod<
   GetRegionQuotaBySandboxIdRequest,
@@ -1432,7 +1444,7 @@ export const getRegionQuotaBySandboxId: API.OperationMethod<
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(136, __c17, 0) as any as S.Schema<GetRegionQuotaBySandboxIdRequest>,
   output: __S(137, __c17, 1) as any as S.Schema<RegionQuota>,
-  errors: [SandboxNotFound, UnknownDaytonaError],
+  errors: [SandboxNotFound, RegionQuotaRunnerOnly, UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
   telemetry: TELEMETRY,
