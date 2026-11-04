@@ -1,5 +1,5 @@
 {
-  "description": "Type the per-class refusals of fork and pause. Observed live 2026-11-04 on Daytona Cloud v0.229.2: on a container-class sandbox from the default snapshot, POST /sandbox/{id}/fork answers 422 \"Forking is not supported for this sandbox\" and POST /sandbox/{id}/pause answers 422 \"Pausing is not supported for this sandbox\". POST /sandbox/{id}/autopause/{interval} on a container answers 422 \"Auto-pause is not supported for sandbox class 'container'. Supported classes: linux-vm, windows\". GET /sandbox/{id}/build-logs-url for a sandbox booted from a snapshot answers 404 \"Sandbox {id} has no build info\", which otherwise matches SandboxNotFound.",
+  "description": "Type the per-class refusals of fork and pause. Observed live 2026-11-04 on Daytona Cloud v0.229.2: on a container-class sandbox from the default snapshot, POST /sandbox/{id}/fork answers 422 \"Forking is not supported for this sandbox\" and POST /sandbox/{id}/pause answers 422 \"Pausing is not supported for this sandbox\". POST /sandbox/{id}/autopause/{interval} on a container answers 422 \"Auto-pause is not supported for sandbox class 'container'. Supported classes: linux-vm, windows\". GET /sandbox/{id}/build-logs-url for a sandbox booted from a snapshot answers 404 \"Sandbox {id} has no build info\", which otherwise matches SandboxNotFound. A create with queueTimeout in an organization without the feature answers 403 \"Queue timeout is not enabled for this organization\".",
   "patches": [
     {
       "op": "add",
@@ -127,6 +127,38 @@
       "path": "/shapes/com.daytona.sandbox#GetBuildLogsUrl/errors/-",
       "value": {
         "target": "com.daytona.sandbox#SandboxHasNoBuildInfo"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#QueueTimeoutNotEnabled",
+      "value": {
+        "type": "structure",
+        "members": {
+          "message": {
+            "target": "smithy.api#String"
+          }
+        },
+        "traits": {
+          "smithy.api#error": "client",
+          "smithy.api#httpError": 403,
+          "smithy.api#documentation": "The organization doesn't have per-sandbox queue timeouts (HTTP 403).",
+          "com.distilled.openapi#errorMatchers": [
+            {
+              "status": 403,
+              "message": {
+                "includes": "Queue timeout is not enabled"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#CreateSandbox/errors/-",
+      "value": {
+        "target": "com.daytona.sandbox#QueueTimeoutNotEnabled"
       }
     }
   ]

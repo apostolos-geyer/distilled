@@ -80,6 +80,15 @@ export class PauseNotSupported
     [{ status: 422, message: { includes: "Pausing is not supported" } }],
   ) {}
 
+/** The organization doesn't have per-sandbox queue timeouts (HTTP 403). */
+export class QueueTimeoutNotEnabled
+  extends /*@__PURE__*/ T.applyErrorMatchers(
+    /*@__PURE__*/ S.TaggedError<QueueTimeoutNotEnabled>()("QueueTimeoutNotEnabled", {
+      message: S.String,
+    }).pipe(C.withAuthError),
+    [{ status: 403, message: { includes: "Queue timeout is not enabled" } }],
+  ) {}
+
 /** A sandbox with that name already exists (HTTP 409). */
 export class SandboxAlreadyExists
   extends /*@__PURE__*/ T.applyErrorMatchers(
@@ -1250,6 +1259,7 @@ export type CreateSandboxError =
   | GpuSandboxNotEphemeral
   | GpuCreditsRequired
   | WindowsSandboxesUnavailable
+  | QueueTimeoutNotEnabled
   | DaytonaOpError;
 /** Create a new sandbox */
 export const createSandbox: API.OperationMethod<
@@ -1267,6 +1277,7 @@ export const createSandbox: API.OperationMethod<
     GpuSandboxNotEphemeral,
     GpuCreditsRequired,
     WindowsSandboxesUnavailable,
+    QueueTimeoutNotEnabled,
     UnknownDaytonaError,
   ],
   protocol: DaytonaProtocol,
