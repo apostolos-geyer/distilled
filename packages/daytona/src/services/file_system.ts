@@ -41,7 +41,7 @@ export interface DownloadFileRequest {
   /** File path to download */
   path: string;
 }
-export type DownloadFileResponse = unknown;
+export type DownloadFileResponse = Uint8Array;
 export type DownloadFilesRequestPathsList = Array<string>;
 export interface DownloadFilesRequest {
   paths: DownloadFilesRequestPathsList;
@@ -131,6 +131,8 @@ export interface SetFilePermissionsResponse {}
 export interface UploadFileRequest {
   /** Destination path for the uploaded file */
   path: string;
+  /** File contents, sent verbatim as the request body. */
+  body: string | Uint8Array;
 }
 export interface UploadedFile {
   name: string;
@@ -191,7 +193,7 @@ export const downloadFile: API.OperationMethod<
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(24, __c6, 0) as any as S.Schema<DownloadFileRequest>,
-  output: __S(25, __c6, 1) as any as S.Schema<DownloadFileResponse>,
+  output: __S(25, __c6, 1) as any as S.Codec<DownloadFileResponse>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -417,7 +419,15 @@ function __c4(j: number): any {
       return S.suspend(() =>
         S.Struct({
           path: S.String.pipe(T.Query()),
-        }).pipe(T.Http({ method: "POST", uri: "/files/upload-v2", code: 200 })),
+          body: S.Union([S.String, S.instanceOf(Uint8Array)]).pipe(T.HttpBody()),
+        }).pipe(
+          T.Http({
+            method: "POST",
+            uri: "/files/upload-v2",
+            code: 200,
+            bodyMediaType: "application/octet-stream",
+          }),
+        ),
       ).annotate({ identifier: "UploadFileRequest" });
     case 1:
       return S.suspend(() =>
@@ -462,9 +472,7 @@ function __c6(j: number): any {
         }).pipe(T.Http({ method: "GET", uri: "/files/download", code: 200 })),
       ).annotate({ identifier: "DownloadFileRequest" });
     case 1:
-      return S.suspend(() => S.Unknown.pipe(T.RawResponseRoot())).annotate({
-        identifier: "DownloadFileResponse",
-      });
+      return S.instanceOf(Uint8Array).pipe(/*@__PURE__*/ T.BinaryResponse());
   }
 }
 function __c7(j: number): any {

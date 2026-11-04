@@ -1,0 +1,35 @@
+{
+  "description": "Session command logs are plain text. Observed live 2026-11-04: GET /process/session/{sessionId}/command/{commandId}/logs (and /process/session/entrypoint/logs) answer `text/plain` with the command's combined stdout and stderr, whatever the Accept header, not the JSON { output, stdout, stderr } the spec declares; decoding the declared shape yields undefined fields.",
+  "patches": [
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.process#SessionCommandLogsText",
+      "value": {
+        "type": "structure",
+        "members": {
+          "body": {
+            "target": "smithy.api#String",
+            "traits": {
+              "com.distilled.openapi#rawResponse": {},
+              "smithy.api#required": {}
+            }
+          }
+        },
+        "traits": {
+          "smithy.api#output": {},
+          "smithy.api#documentation": "The command's combined stdout and stderr, as text."
+        }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/shapes/com.daytona.process#GetSessionCommandLogs/output/target",
+      "value": "com.daytona.process#SessionCommandLogsText"
+    },
+    {
+      "op": "replace",
+      "path": "/shapes/com.daytona.process#GetEntrypointLogs/output/target",
+      "value": "com.daytona.process#SessionCommandLogsText"
+    }
+  ]
+}

@@ -76,11 +76,8 @@ export interface GetEntrypointLogsRequest {
   /** Follow logs in real-time (WebSocket only) */
   follow?: boolean;
 }
-export interface SessionCommandLogsResponse {
-  output: string;
-  stderr: string;
-  stdout: string;
-}
+/** The command's combined stdout and stderr, as text. */
+export type SessionCommandLogsText = string;
 export interface GetEntrypointSessionRequest {}
 export interface Command {
   command: string;
@@ -329,12 +326,12 @@ export type GetEntrypointLogsError = DaytonaOpError;
 /** Get entrypoint logs Get logs for a sandbox entrypoint session. Returns JSON with separated stdout/stderr for SDK >= 0.161.0, plain text otherwise. Supports WebSocket streaming. */
 export const getEntrypointLogs: API.OperationMethod<
   GetEntrypointLogsRequest,
-  SessionCommandLogsResponse,
+  SessionCommandLogsText,
   GetEntrypointLogsError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(256, __c16, 0) as any as S.Schema<GetEntrypointLogsRequest>,
-  output: __S(272, __c17, 0) as any as S.Schema<SessionCommandLogsResponse>,
+  output: __S(272, __c17, 0) as any as S.Schema<SessionCommandLogsText>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -414,12 +411,12 @@ export type GetSessionCommandLogsError = DaytonaOpError;
 /** Get session command logs Get logs for a specific command within a session. Returns JSON with separated stdout/stderr for SDK >= 0.167.0, plain text otherwise. Supports WebSocket streaming. */
 export const getSessionCommandLogs: API.OperationMethod<
   GetSessionCommandLogsRequest,
-  SessionCommandLogsResponse,
+  SessionCommandLogsText,
   GetSessionCommandLogsError,
   DaytonaOpContext
 > = /*@__PURE__*/ API.make(() => ({
   input: __S(80, __c5, 0) as any as S.Schema<GetSessionCommandLogsRequest>,
-  output: __S(272, __c17, 0) as any as S.Schema<SessionCommandLogsResponse>,
+  output: __S(272, __c17, 0) as any as S.Schema<SessionCommandLogsText>,
   errors: [UnknownDaytonaError],
   protocol: DaytonaProtocol,
   retry: Retry.Retry,
@@ -838,13 +835,9 @@ function __c16(j: number): any {
 function __c17(j: number): any {
   switch (j) {
     case 0:
-      return S.suspend(() =>
-        S.Struct({
-          output: S.String,
-          stderr: S.String,
-          stdout: S.String,
-        }),
-      ).annotate({ identifier: "SessionCommandLogsResponse" });
+      return S.suspend(() => S.String.pipe(T.RawResponseRoot())).annotate({
+        identifier: "SessionCommandLogsText",
+      });
   }
 }
 function __c18(j: number): any {

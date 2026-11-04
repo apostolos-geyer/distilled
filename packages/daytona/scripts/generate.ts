@@ -58,9 +58,29 @@ const spec: SdkSpec = {
   memberTraitPipes: {
     [SENSITIVE_TRAIT]: "T.SensitiveValue",
   },
+  // A Blob payload (file upload) is the raw request body: text or bytes,
+  // sent verbatim under the operation's bodyMediaType.
+  memberSchema: (m) =>
+    m.target === "smithy.api#Blob" && "smithy.api#httpPayload" in m.traits
+      ? "S.Union([S.String, S.instanceOf(Uint8Array)])"
+      : undefined,
   memberTsType: (m) =>
     SENSITIVE_TRAIT in m.traits
       ? `string | Redacted.Redacted<string>${m.nullable ? " | null" : ""}`
+      : m.target === "smithy.api#Blob" && "smithy.api#httpPayload" in m.traits
+        ? "string | Uint8Array"
+        : undefined,
+
+  // A Blob raw response (file download) decodes as bytes.
+  shapeOverride: ({ name, def }) =>
+    def.type === "structure" &&
+    Object.keys(def.members ?? {}).length === 1 &&
+    def.members.body?.target === "smithy.api#Blob" &&
+    RAW_RESPONSE_TRAIT in (def.members.body.traits ?? {})
+      ? [
+          `export type ${name} = Uint8Array;`,
+          `export const ${name} = S.instanceOf(Uint8Array).pipe(T.BinaryResponse()) as S.Codec<${name}>;`,
+        ]
       : undefined,
 
   // Unions surface as TS type unions over an opaque schema — the REST

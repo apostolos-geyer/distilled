@@ -1,0 +1,69 @@
+{
+  "description": "Type the per-class refusals of fork and pause. Observed live 2026-11-04 on Daytona Cloud v0.229.2: on a container-class sandbox from the default snapshot, POST /sandbox/{id}/fork answers 422 \"Forking is not supported for this sandbox\" and POST /sandbox/{id}/pause answers 422 \"Pausing is not supported for this sandbox\".",
+  "patches": [
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#ForkNotSupported",
+      "value": {
+        "type": "structure",
+        "members": {
+          "message": {
+            "target": "smithy.api#String"
+          }
+        },
+        "traits": {
+          "smithy.api#error": "client",
+          "smithy.api#httpError": 422,
+          "smithy.api#documentation": "The sandbox's class or snapshot can't be forked (HTTP 422).",
+          "com.distilled.openapi#errorMatchers": [
+            {
+              "status": 422,
+              "message": {
+                "includes": "Forking is not supported"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#ForkSandbox/errors/-",
+      "value": {
+        "target": "com.daytona.sandbox#ForkNotSupported"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#PauseNotSupported",
+      "value": {
+        "type": "structure",
+        "members": {
+          "message": {
+            "target": "smithy.api#String"
+          }
+        },
+        "traits": {
+          "smithy.api#error": "client",
+          "smithy.api#httpError": 422,
+          "smithy.api#documentation": "The sandbox's class can't be paused (HTTP 422).",
+          "com.distilled.openapi#errorMatchers": [
+            {
+              "status": 422,
+              "message": {
+                "includes": "Pausing is not supported"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.daytona.sandbox#PauseSandbox/errors/-",
+      "value": {
+        "target": "com.daytona.sandbox#PauseNotSupported"
+      }
+    }
+  ]
+}
