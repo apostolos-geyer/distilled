@@ -339,6 +339,9 @@ importers:
       '@distilled.cloud/railway':
         specifier: workspace:*
         version: link:../../packages/railway
+      '@distilled.cloud/s3':
+        specifier: workspace:*
+        version: link:../../packages/s3
       '@distilled.cloud/slack':
         specifier: workspace:*
         version: link:../../packages/slack
@@ -568,12 +571,12 @@ importers:
 
   packages/aws:
     dependencies:
-      '@distilled.cloud/aws4signer':
-        specifier: workspace:*
-        version: link:../aws4signer
       '@distilled.cloud/core':
         specifier: workspace:*
         version: link:../core
+      '@distilled.cloud/s3':
+        specifier: workspace:*
+        version: link:../s3
       effect:
         specifier: 'catalog:'
         version: 4.1.2
@@ -702,6 +705,9 @@ importers:
       '@distilled.cloud/core':
         specifier: workspace:*
         version: link:../core
+      '@distilled.cloud/s3':
+        specifier: workspace:*
+        version: link:../s3
       effect:
         specifier: 'catalog:'
         version: 4.1.2
@@ -1500,6 +1506,9 @@ importers:
       '@distilled.cloud/core':
         specifier: workspace:*
         version: link:../core
+      '@distilled.cloud/s3':
+        specifier: workspace:*
+        version: link:../s3
       effect:
         specifier: 'catalog:'
         version: 4.1.2
@@ -1603,6 +1612,22 @@ importers:
       '@distilled.cloud/dev':
         specifier: workspace:*
         version: link:../dev
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.5
+
+  packages/s3:
+    dependencies:
+      '@distilled.cloud/aws4signer':
+        specifier: workspace:*
+        version: link:../aws4signer
+      '@distilled.cloud/core':
+        specifier: workspace:*
+        version: link:../core
+      effect:
+        specifier: 'catalog:'
+        version: 4.1.2
+    devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.5
